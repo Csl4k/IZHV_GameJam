@@ -7,16 +7,17 @@ public class PlayerHealth : MonoBehaviour
     [Header("Settings")]
     public int maxHealth = 3;
     public float knockbackForce = 15f;
+    public float deathKnockbackForce = 50f; 
     public float flashDuration = 0.1f;
     public float stunDuration = 0.2f;
 
     private PlayerController movementScript;
-
     private int currentHealth;
     private bool isDead = false;
     private Rigidbody2D rb;
     private SpriteRenderer sr;
     private Color originalColor;
+    private float defaultDrag;
 
     void Start()
     {
@@ -25,12 +26,11 @@ public class PlayerHealth : MonoBehaviour
         sr = GetComponent<SpriteRenderer>();
         if (sr != null) originalColor = sr.color;
 
-        movementScript = GetComponent<PlayerController>();
+        // remember normal drag
+        if (rb != null) defaultDrag = rb.drag;
 
-        if (movementScript == null)
-        {
-            Debug.LogError("Could not find 'PlayerController' script on the Player");
-        }
+        movementScript = GetComponent<PlayerController>();
+        if (movementScript == null) Debug.LogError("Missing PlayerController!");
     }
 
     public void TakeDamage(int damage, Transform source)
@@ -40,31 +40,39 @@ public class PlayerHealth : MonoBehaviour
         currentHealth -= damage;
         Debug.Log("Player HP: " + currentHealth);
 
+        // determine which force to use
+        float forceToUse = (currentHealth <= 0) ? deathKnockbackForce : knockbackForce;
+
+        // knockback
+        if (currentHealth > 0 || rb != null)
+        {
+            ApplyKnockback(source, forceToUse);
+        }
+
         StartCoroutine(FlashRedRoutine());
 
         if (currentHealth > 0)
         {
-            ApplyKnockback(source);
+            StartCoroutine(RecoverRoutine());
         }
         else
         {
-            Die();
+            StartCoroutine(DeathRoutine());
         }
     }
 
-    void ApplyKnockback(Transform source)
+    void ApplyKnockback(Transform source, float force)
     {
         if (rb != null && source != null)
         {
-            // disable Controls
             if (movementScript != null) movementScript.enabled = false;
 
-            // reset velocity and push
+            rb.drag = 10f; // high drag for fast stop
             rb.velocity = Vector2.zero;
-            Vector2 knockbackDir = (transform.position - source.position).normalized;
-            rb.AddForce(knockbackDir * knockbackForce, ForceMode2D.Impulse);
 
-            StartCoroutine(RecoverRoutine());
+            Vector2 knockbackDir = (transform.position - source.position).normalized;
+
+            rb.AddForce(knockbackDir * force, ForceMode2D.Impulse);
         }
     }
 
@@ -72,8 +80,33 @@ public class PlayerHealth : MonoBehaviour
     {
         yield return new WaitForSeconds(stunDuration);
 
-        // Re-enable controls
-        if (movementScript != null) movementScript.enabled = true;
+        // reset Physics
+        if (rb != null)
+        {
+            rb.velocity = Vector2.zero;
+            rb.drag = defaultDrag;
+        }
+
+        // re-enable controls
+        if (movementScript != null && !isDead) movementScript.enabled = true;
+    }
+
+    IEnumerator DeathRoutine()
+    {
+        isDead = true;
+
+        if (sr != null) sr.color = Color.grey;
+
+        yield return new WaitForSeconds(1.0f);
+
+        if (rb != null)
+        {
+            rb.velocity = Vector2.zero;
+            rb.simulated = false; // stop interacting with world
+        }
+
+        yield return new WaitForSeconds(1.0f);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
     IEnumerator FlashRedRoutine()
@@ -82,29 +115,7 @@ public class PlayerHealth : MonoBehaviour
         {
             sr.color = Color.red;
             yield return new WaitForSeconds(flashDuration);
-            sr.color = originalColor;
+            if (!isDead) sr.color = originalColor;
         }
-    }
-
-    void Die()
-    {
-        isDead = true;
-        if (sr != null) sr.color = Color.grey;
-
-        if (rb != null)
-        {
-            rb.velocity = Vector2.zero;
-            rb.simulated = false;
-        }
-
-        if (movementScript != null) movementScript.enabled = false;
-
-        StartCoroutine(RespawnRoutine());
-    }
-
-    IEnumerator RespawnRoutine()
-    {
-        yield return new WaitForSeconds(2f); // TODO future death screen
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 }

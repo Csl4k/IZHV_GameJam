@@ -1,19 +1,21 @@
 using UnityEngine;
 
-public class DamageDealer : MonoBehaviour
+public class PlayerSword : MonoBehaviour
 {
-    public int damageAmount = 1;
+    public int damage = 1;
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag("Enemy"))
-        {
-            EnemyHealth enemy = other.GetComponent<EnemyHealth>();
 
-            if (enemy != null)
-            {
-                enemy.TakeDamage(damageAmount);
-            }
+        EnemyHealth enemy = other.GetComponent<EnemyHealth>();
+
+        if (enemy != null)
+        {
+            // pass 'transform.parent' (The Player) as the source.
+            // if the sword is not childed to the player, just use 'transform'.
+            Transform source = transform.parent != null ? transform.parent : transform;
+
+            enemy.TakeDamage(damage, source);
         }
     }
 }

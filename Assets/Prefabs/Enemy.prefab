@@ -170,6 +170,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hp: 3
   coinPrefab: {fileID: 6089120042977225970, guid: c5a893aa741db4647a77428e9c46fdd0, type: 3}
+  knockbackDeath: 15
+  knockbackAlive: 5
+  stunDuration: 0.2
 --- !u!114 &1208151995607390402
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -185,6 +188,9 @@ MonoBehaviour:
   player: {fileID: 0}
   swordCollider: {fileID: 8130163614128508559}
   weaponPivot: {fileID: 2206645138717301037}
+  obstacleLayer:
+    serializedVersion: 2
+    m_Bits: 64
   detectRange: 10
   rushTriggerDistance: 6
   attackRange: 2
@@ -204,8 +210,8 @@ Rigidbody2D:
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
-  m_Mass: 100
-  m_LinearDrag: 0
+  m_Mass: 1
+  m_LinearDrag: 10
   m_AngularDrag: 0.05
   m_GravityScale: 0
   m_Material: {fileID: 0}

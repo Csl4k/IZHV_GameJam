@@ -259,7 +259,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d02b454c7c2068840a79a378f8557106, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damageAmount: 1
+  damage: 1
 --- !u!1 &7160578519025019195
 GameObject:
   m_ObjectHideFlags: 0
@@ -523,5 +523,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth: 3
-  movementScript: {fileID: 0}
-  attackScript: {fileID: 0}
+  knockbackForce: 23
+  deathKnockbackForce: 50
+  flashDuration: 0.1
+  stunDuration: 0.2

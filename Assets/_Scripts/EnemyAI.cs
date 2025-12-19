@@ -8,6 +8,8 @@ public class EnemyAI : MonoBehaviour
     public Collider2D swordCollider;
     public Transform weaponPivot;
 
+    public LayerMask obstacleLayer;
+
     [Header("Ranges")]
     public float detectRange = 10f;
     public float rushTriggerDistance = 6f;
@@ -25,9 +27,16 @@ public class EnemyAI : MonoBehaviour
     private Rigidbody2D rb;
     private Rigidbody2D playerRb;
 
+    private float baseDetectRange;
+    private Vector2 lastSeenPosition;
+    private float alertTimer = 0f;
+
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+
+        // store the starting range so we can double it later
+        baseDetectRange = detectRange;
 
         GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
         if (playerObj != null)
@@ -45,36 +54,76 @@ public class EnemyAI : MonoBehaviour
 
         float distance = Vector2.Distance(transform.position, player.position);
 
-        // rotation
-        if (distance < detectRange && !isAttacking)
+        // vision
+        bool wallInWay = Physics2D.Linecast(transform.position, player.position, obstacleLayer);
+        bool canSeePlayer = (distance < detectRange) && !wallInWay;
+
+        if (canSeePlayer)
         {
-            Vector3 direction = player.position - transform.position;
-            float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-            transform.rotation = Quaternion.Euler(0, 0, angle);
+            lastSeenPosition = player.position;
+            alertTimer = 10f;
+            detectRange = baseDetectRange * 2f;
         }
 
-        // behavior of the enemy
-        if (distance < detectRange && !isAttacking)
+        if (!isAttacking)
         {
-            // long Rush
-            if (distance > rushTriggerDistance)
+            if (canSeePlayer)
             {
-                StartCoroutine(DashAttackRoutine(true));
+                RotateTowards(player.position);
             }
-            // walk
-            else if (distance > attackRange)
+            else if (alertTimer > 0)
             {
-                // move towards the player
-                transform.position += transform.right * moveSpeed * Time.deltaTime;
-            }
-            // fight
-            else
-            {
-                // swing / lunge
-                if (Random.value > 0.5f) StartCoroutine(SwingRoutine());
-                else StartCoroutine(DashAttackRoutine(false));
+                RotateTowards(lastSeenPosition);
             }
         }
+
+        // behavior
+        if (!isAttacking)
+        {
+            if (canSeePlayer)
+            {
+                // logic: Rush, Walk, or Fight
+                if (distance > rushTriggerDistance)
+                {
+                    StartCoroutine(DashAttackRoutine(true));
+                }
+                else if (distance > attackRange)
+                {
+                    // walk
+                    transform.position += transform.right * moveSpeed * Time.deltaTime;
+                }
+                else
+                {
+                    // fight
+                    if (Random.value > 0.5f) StartCoroutine(SwingRoutine());
+                    else StartCoroutine(DashAttackRoutine(false));
+                }
+            }
+
+            else if (alertTimer > 0)
+            {
+                alertTimer -= Time.deltaTime;
+
+                // move to the last position from memory
+                float distToTarget = Vector2.Distance(transform.position, lastSeenPosition);
+                if (distToTarget > 0.5f)
+                {
+                    transform.position = Vector2.MoveTowards(transform.position, lastSeenPosition, moveSpeed * Time.deltaTime);
+                }
+            }
+            // idle
+            else
+            {
+                detectRange = baseDetectRange; // reset range
+            }
+        }
+    }
+
+    void RotateTowards(Vector2 targetPos)
+    {
+        Vector3 direction = (Vector3)targetPos - transform.position;
+        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        transform.rotation = Quaternion.Euler(0, 0, angle);
     }
 
     IEnumerator DashAttackRoutine(bool isLongRush)
@@ -86,28 +135,45 @@ public class EnemyAI : MonoBehaviour
         float duration = isLongRush ? 0.6f : 0.45f;
         float windup = isLongRush ? 0.5f : 0.3f;
 
+        float startDrag = rb.drag;
+        rb.drag = 0f;
+
         if (weaponPivot != null) weaponPivot.localRotation = Quaternion.identity;
 
         SpriteRenderer sr = GetComponentInChildren<SpriteRenderer>();
         Color originalColor = (sr != null) ? sr.color : Color.white;
         if (sr) sr.color = Color.red;
 
-        yield return new WaitForSeconds(windup);
-
-        // aim update
-        if (player != null)
+        float timer = 0f;
+        while (timer < windup)
         {
-            Vector2 dir = player.position - transform.position;
-            float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
-            transform.rotation = Quaternion.Euler(0, 0, angle);
+            if (!this.enabled) yield break;
+
+            bool wallInWay = Physics2D.Linecast(transform.position, player.position, obstacleLayer);
+            if (!wallInWay)
+            {
+                lastSeenPosition = player.position;
+                RotateTowards(player.position);
+            }
+            else
+            {
+                RotateTowards(lastSeenPosition);
+            }
+            timer += Time.deltaTime;
+            yield return null;
         }
 
         if (swordCollider != null) swordCollider.enabled = true;
+
+ 
         rb.velocity = transform.right * speed;
 
         yield return new WaitForSeconds(duration);
 
+
         rb.velocity = Vector2.zero;
+        rb.drag = startDrag;
+
         if (swordCollider != null) swordCollider.enabled = false;
         if (sr) sr.color = originalColor;
 
@@ -120,15 +186,11 @@ public class EnemyAI : MonoBehaviour
         isAttacking = true;
         rb.velocity = Vector2.zero;
 
-        // wind up
         yield return StartCoroutine(RotatePivot(Quaternion.Euler(0, 0, 45), 0.2f));
 
-        // swing
         if (swordCollider != null) swordCollider.enabled = true;
-
         yield return StartCoroutine(RotatePivot(Quaternion.Euler(0, 0, -135), 0.15f));
 
-        // reset
         yield return StartCoroutine(RotatePivot(Quaternion.Euler(0, 0, 0), 0.2f));
 
         if (swordCollider != null) swordCollider.enabled = false;
@@ -148,5 +210,16 @@ public class EnemyAI : MonoBehaviour
             yield return null;
         }
         weaponPivot.localRotation = targetLocalRot;
+    }
+
+    public void BeginImpact()
+    {
+        this.enabled = false;
+        rb.velocity = Vector2.zero;
+    }
+
+    public void Recover()
+    {
+        this.enabled = true;
     }
 }
