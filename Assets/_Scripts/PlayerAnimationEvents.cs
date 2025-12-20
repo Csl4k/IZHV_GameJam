@@ -33,6 +33,19 @@ public class PlayerAnimationEvents : MonoBehaviour
         }
     }
 
+    public void DodgeBurst(float force)
+    {
+        if (playerController != null)
+            playerController.ApplyDodgeImpulse(force);
+    }
+
+    public void EndDodge()
+    {
+        if (playerController != null)
+            playerController.FinishDodgeAnimation();
+    }
+
+
     public void EnableParry()
     {
         if (parryHitbox != null) parryHitbox.SetActive(true);

@@ -168,7 +168,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b93348d6439b5a5408cd3fa70bd053a9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hp: 3
+  hp: 7
   coinPrefab: {fileID: 6089120042977225970, guid: c5a893aa741db4647a77428e9c46fdd0, type: 3}
   knockbackDeath: 15
   knockbackAlive: 5

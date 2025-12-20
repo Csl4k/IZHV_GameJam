@@ -107,6 +107,7 @@ public class MerchantCutscene : MonoBehaviour
     IEnumerator PlayTwistFallback()
     {
         CloseDialogue();
+        GameManager.ResetAfterMerchantMurder();
         if (playerTransform != null)
         {
             MonoBehaviour controller = playerTransform.GetComponent<MonoBehaviour>();
@@ -125,11 +126,8 @@ public class MerchantCutscene : MonoBehaviour
 
         // Advance the merchant chain so the *next* merchant correctly references this murder.
         GameManager.RegisterMerchantMurder();
-
-        GameManager.TotalGold = 0;
-        GameManager.RunCount++;
-
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+
     }
 
     public string GetMerchantDialogue()

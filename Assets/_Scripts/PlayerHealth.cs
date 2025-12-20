@@ -5,7 +5,8 @@ using UnityEngine.SceneManagement;
 public class PlayerHealth : MonoBehaviour
 {
     [Header("Settings")]
-    public int maxHealth = 3;
+    public int baseHealth = 3;     // starts at 3
+    public int maxHealth;         // computed from armor
     public float knockbackForce = 15f;
     public float deathKnockbackForce = 50f; 
     public float flashDuration = 0.1f;
@@ -18,11 +19,14 @@ public class PlayerHealth : MonoBehaviour
     private SpriteRenderer sr;
     private Color originalColor;
     private float defaultDrag;
+    public bool invulnerable = false;
 
 
     void Start()
     {
+        maxHealth = ComputeMaxHealth();
         currentHealth = maxHealth;
+
         rb = GetComponent<Rigidbody2D>();
         sr = GetComponent<SpriteRenderer>();
         if (sr != null) originalColor = sr.color;
@@ -34,6 +38,27 @@ public class PlayerHealth : MonoBehaviour
         if (movementScript == null) Debug.LogError("Missing PlayerController!");
     }
 
+    private int GetExtraHitsFromArmor(int armorLevel)
+    {
+        // Extra hits at armor: 1,3,6,10,15... (triangular milestones)
+        int n = 0;
+        int needed = 1;
+        while (armorLevel >= needed)
+        {
+            n++;
+            needed += (n + 1);
+        }
+        return n;
+    }
+
+    private int ComputeMaxHealth()
+    {
+        int armorLevel = Mathf.Max(0, GameManager.ArmorLevel);
+        int extra = GetExtraHitsFromArmor(armorLevel);
+        return baseHealth + extra;
+    }
+
+
     public void UsePotion()
     {
         if (isDead) return;
@@ -41,8 +66,12 @@ public class PlayerHealth : MonoBehaviour
         if (currentHealth >= maxHealth) return;
 
         GameManager.HealthPotion--;
-        currentHealth = Mathf.Min(maxHealth, currentHealth + 1);
+
+        int healAmount = Mathf.CeilToInt(maxHealth / 3f); // ~1/3 max HP
+        currentHealth = Mathf.Min(maxHealth, currentHealth + healAmount);
+
     }
+
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.G))
@@ -52,12 +81,42 @@ public class PlayerHealth : MonoBehaviour
         }
     }
 
+    public void RecalculateHealthFromArmor(bool healToFull = true)
+    {
+        int oldMax = maxHealth;
+        maxHealth = ComputeMaxHealth();
+
+        if (healToFull)
+            currentHealth = maxHealth;
+        else
+            currentHealth += (maxHealth - oldMax);
+    }
+
+    public void EnableInvulnerability()
+    {
+        invulnerable = true;
+    }
+
+    public void DisableInvulnerability()
+    {
+        invulnerable = false;
+    }
+
+
+
     public void TakeDamage(int damage, Transform source)
     {
         if (isDead) return;
-        int reduced = Mathf.Max(1, damage - GameManager.ArmorLevel);
+        if (invulnerable) return;
 
-        currentHealth -= reduced;
+        // Stronger enemies ONLY after each merchant-death "game reset"
+        int resetTier = Mathf.Max(0, GameManager.MerchantIndex); // 0=Gregor run, 1=Viktor run, 2=Viktor II...
+        float resetMultiplier = 1f + 0.12f * resetTier;          // tweak 0.12f (12% per reset)
+        float incoming = Mathf.Max(1f, damage) * resetMultiplier;
+
+        int finalDamage = Mathf.Max(1, Mathf.RoundToInt(incoming));
+        currentHealth -= finalDamage;
+
         //Debug.Log("Player HP: " + currentHealth);
 
         // determine which force to use

@@ -1,5 +1,36 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1025682101932085750
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7391655929674181761}
+  m_Layer: 3
+  m_Name: RotationPivot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7391655929674181761
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1025682101932085750}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7795138782147359565}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1461902231623197442
 GameObject:
   m_ObjectHideFlags: 0
@@ -456,7 +487,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d02b454c7c2068840a79a378f8557106, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseDamage: 1
+  baseDamage: 2
 --- !u!1 &7160578519025019195
 GameObject:
   m_ObjectHideFlags: 0
@@ -497,6 +528,7 @@ Transform:
   - {fileID: 8644794594062624774}
   - {fileID: 1121777314720028329}
   - {fileID: 996958409926067774}
+  - {fileID: 7391655929674181761}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &2082274190938117454
@@ -702,6 +734,26 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: 87d6efde-69a8-42da-82f0-40a1266b1e56
     m_ActionName: Player/Parry[/Mouse/rightButton]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 7227215666040315957}
+        m_TargetAssemblyTypeName: PlayerController, Assembly-CSharp
+        m_MethodName: OnDodge
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 4369498c-92c7-4174-a826-d7a9449ae362
+    m_ActionName: Player/New action
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 396eecdc-769c-458d-852c-c2b537459ce0
+    m_ActionName: Player/Heal[/Keyboard/q]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Player
@@ -721,11 +773,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mainCamera: {fileID: 0}
   animator: {fileID: 0}
-  health: 10
-  speed: 5
+  health: 3
+  speed: 4.5
   comboResetTime: 1
   lungeForce: 10
   stepForce: 3
+  dodgeImpulse: 8
+  dodgeCooldown: 0.45
 --- !u!114 &3571442812751166925
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -738,11 +792,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac21a739470bf1e44b571aa27942c470, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  baseHealth: 3
   maxHealth: 3
   knockbackForce: 23
   deathKnockbackForce: 50
   flashDuration: 0.1
   stunDuration: 0.2
+  invulnerable: 0
 --- !u!95 &4612575962353180619
 Animator:
   serializedVersion: 5
@@ -756,7 +812,7 @@ Animator:
   m_Controller: {fileID: 9100000, guid: 9f4790c7eab0acf4295f75a3cf7a3e30, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
-  m_ApplyRootMotion: 0
+  m_ApplyRootMotion: 1
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
   m_WarningMessage: 

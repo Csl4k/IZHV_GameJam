@@ -434,9 +434,6 @@ public class MerchantDeathCutscene : MonoBehaviour
                 shopUI.rootPanel.SetActive(false);
         }
 
-        // GameManager.StoryState = 1; 
-        // GameManager.RunCount++; 
-
         if (mainCamera != null)
             mainCamera.orthographicSize = originalCameraSize;
 
@@ -446,6 +443,7 @@ public class MerchantDeathCutscene : MonoBehaviour
         if (playerController != null)
             playerController.enabled = true;
 
+        GameManager.ResetAfterMerchantMurder();
         cutsceneActive = false;
         buttons.SetActive(true);
 

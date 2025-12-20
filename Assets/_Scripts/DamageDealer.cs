@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class PlayerSword : MonoBehaviour
 {
-    public int baseDamage = 1;
+    public int baseDamage = 2;
 
     private void OnTriggerEnter2D(Collider2D other)
     {
@@ -15,7 +15,10 @@ public class PlayerSword : MonoBehaviour
             // if the sword is not childed to the player, just use 'transform'.
             Transform source = transform.parent != null ? transform.parent : transform;
 
-            int damage = baseDamage + GameManager.SwordLevel / 2;
+            // Non-linear infinite scaling
+            float bonus = 2.2f * Mathf.Log(1f + GameManager.SwordLevel); // tweak 2.2f
+            int damage = Mathf.Max(1, Mathf.RoundToInt(baseDamage + bonus));
+
             enemy.TakeDamage(damage, source);
         }
     }

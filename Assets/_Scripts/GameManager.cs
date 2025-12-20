@@ -29,28 +29,6 @@ public class GameManager : MonoBehaviour
     public static int ShopInflationLevel = 0;
     public static bool IsUIOpen = false;
 
-
-    // Small helper for nice UI naming (II, III, IV...)
-    private static string ToRoman(int number)
-    {
-        // We only need small values; keep it simple.
-        if (number <= 0) return "";
-        string[] thousands = { "", "M", "MM", "MMM" };
-        string[] hundreds =  { "", "C", "CC", "CCC", "CD", "D", "DC", "DCC", "DCCC", "CM" };
-        string[] tens =      { "", "X", "XX", "XXX", "XL", "L", "LX", "LXX", "LXXX", "XC" };
-        string[] ones =      { "", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX" };
-
-        int t = number / 1000;
-        int h = (number % 1000) / 100;
-        int te = (number % 100) / 10;
-        int o = number % 10;
-        return thousands[Mathf.Clamp(t, 0, thousands.Length - 1)] +
-               hundreds[h] +
-               tens[te] +
-               ones[o];
-    }
-
-
     void Awake()
     {
         if (Instance == null)
@@ -120,6 +98,30 @@ public class GameManager : MonoBehaviour
         // We only need StoryState for gating the intro; after the first merchant dies, we stay in "post-intro".
         StoryState = 1;
     }
+
+    public static void ResetAfterMerchantMurder()
+    {
+        // economy reset
+        TotalGold = 0;
+        RunCount = 1;
+
+        ShopInflationLevel = 0;
+
+    }
+
+
+    public static int GetPotionPrice(int baseCost, int currentLevel)
+    {
+        // Mild scaling so potions don’t become impossible
+        return Mathf.RoundToInt(baseCost * Mathf.Pow(1.12f, currentLevel));
+    }
+
+    public static int GetUpgradePrice(int baseCost, int currentLevel)
+    {
+        // Each next purchase is more expensive (infinite scaling, non-linear)
+        return Mathf.RoundToInt(baseCost * Mathf.Pow(1.18f, currentLevel));
+    }
+
 
     private static string ToRomanNumeral(int number)
     {

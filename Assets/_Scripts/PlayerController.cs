@@ -17,9 +17,19 @@ public class PlayerController : MonoBehaviour
     public float lungeForce = 10f;
     public float stepForce = 3f;
 
+    [Header("Dodge Settings")]
+    public float dodgeImpulse = 8f;
+    public float dodgeCooldown = 0.45f;
+
+    private bool isDodging = false;
+    private float lastDodgeTime = -999f;
+    private Vector2 lastMoveDir = Vector2.up;   // fallback direction if no input
+
+
     private Rigidbody2D mRigidBody;
     private Vector2 mMoveInput = Vector2.zero;
     private Vector2 mLookInput = Vector2.zero;
+    private Vector2 dodgeDir = Vector2.up;
 
     // Combo Variables
     private int comboCounter = 0;
@@ -45,15 +55,59 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (!isAttacking && !isParrying)
+        if (!isAttacking && !isParrying && !isDodging)
         {
             Vector2 targetPosition = mRigidBody.position + mMoveInput * speed * Time.fixedDeltaTime;
             mRigidBody.MovePosition(targetPosition);
         }
-        RotatePlayer();
+        if (!isDodging) RotatePlayer();
+
     }
 
-    public void OnMove(InputAction.CallbackContext ctx) => mMoveInput = ctx.ReadValue<Vector2>();
+    public void OnMove(InputAction.CallbackContext ctx)
+    {
+        mMoveInput = ctx.ReadValue<Vector2>();
+
+        if (mMoveInput.sqrMagnitude > 0.01f)
+            lastMoveDir = mMoveInput.normalized;
+    }
+
+    public void OnDodge(InputAction.CallbackContext ctx)
+    {
+        if (GameManager.IsUIOpen) return;
+        if (!ctx.started) return;
+
+        if (isAttacking || isParrying || isDodging) return;
+        if (Time.time < lastDodgeTime + dodgeCooldown) return;
+
+        lastDodgeTime = Time.time;
+        isDodging = true;
+
+        // stop drifting
+        mRigidBody.velocity = Vector2.zero;
+
+        dodgeDir = (mMoveInput.sqrMagnitude > 0.01f) ? mMoveInput.normalized : (Vector2)transform.up;
+        animator.SetTrigger("Dodge"); // create this Trigger in Animator
+    }
+
+    public void ApplyDodgeImpulse(float eventModifier)
+{
+    // called from animation event at the "burst" frame
+    mRigidBody.velocity = Vector2.zero;
+
+    // Prefer live input; fallback to last move direction; final fallback = forward
+    Vector2 dir = dodgeDir;
+    mRigidBody.AddForce(dir * dodgeImpulse * eventModifier, ForceMode2D.Impulse);
+
+}
+
+public void FinishDodgeAnimation()
+{
+    isDodging = false;
+    mRigidBody.velocity = Vector2.zero;
+}
+
+
     public void OnLook(InputAction.CallbackContext ctx) => mLookInput = ctx.ReadValue<Vector2>();
 
     public void OnAttack(InputAction.CallbackContext ctx)
@@ -61,6 +115,7 @@ public class PlayerController : MonoBehaviour
         if (GameManager.IsUIOpen) return;
         if (ctx.started)
         {
+            if (isDodging) return;
             if (isAttacking) return;
             PerformComboAttack();
         }
@@ -73,6 +128,7 @@ public class PlayerController : MonoBehaviour
     // 3. Add the Input Handler
     public void OnParry(UnityEngine.InputSystem.InputAction.CallbackContext ctx)
     {
+        if (isDodging) return;
         if (ctx.started && !isAttacking && !isParrying)
         {
             StartCoroutine(PerformParry());

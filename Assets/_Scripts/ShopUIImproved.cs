@@ -90,10 +90,10 @@ public class ShopUI : MonoBehaviour
     void RefreshPricesAndButtons()
     {
 
-        int potionPrice = GameManager.GetGoodsPrice(30);
-        int swordPrice = GameManager.GetGoodsPrice(50);
-        int armorPrice = GameManager.GetGoodsPrice(40);
-        int torchPrice = GameManager.GetGoodsPrice(100);
+        int potionPrice = GameManager.GetPotionPrice(30, );
+        int swordPrice = GameManager.GetUpgradePrice(50, GameManager.SwordLevel);
+        int armorPrice = GameManager.GetUpgradePrice(40, GameManager.ArmorLevel);
+        int torchPrice = GameManager.GetUpgradePrice(100, GameManager.TorchLevel);
         int freedomPrice = GameManager.GetFreedomPrice(100);
 
         if (txtPotion) txtPotion.text = $"<color=white>Health Potion</color> <color=yellow>{potionPrice}g</color>";
@@ -210,7 +210,20 @@ public class ShopUI : MonoBehaviour
 
     void AttemptBuy(int baseCost, string itemName, string itemType)
     {
-        int cost = GameManager.GetGoodsPrice(baseCost);
+        int cost =
+        (itemType == "potion") ? GameManager.GetPotionPrice(baseCost, GameManager.MerchantIndex) :
+        (itemType == "sword") ? GameManager.GetUpgradePrice(baseCost, GameManager.SwordLevel) :
+        (itemType == "armor") ? GameManager.GetUpgradePrice(baseCost, GameManager.ArmorLevel) :
+        (itemType == "torch") ? GameManager.GetUpgradePrice(baseCost, GameManager.TorchLevel) :
+        GameManager.GetGoodsPrice(baseCost); // fallback
+
+
+        if (itemType == "potion" && GameManager.HealthPotion >= 5)
+        {
+            dialogueLabel.text = GetMerchantName() + ": \"No more. You can only carry 5.\"";
+            RefreshPricesAndButtons();
+            return;
+        }
 
         // Check if already owned (torch only)
         if (itemType == "torch" && GameManager.TorchLevel > 0)
@@ -237,6 +250,8 @@ public class ShopUI : MonoBehaviour
                     break;
                 case "armor":
                     GameManager.ArmorLevel++;
+                    var ph = FindObjectOfType<PlayerHealth>();
+                    if (ph != null) ph.RecalculateHealthFromArmor(healToFull: false);
                     break;
                 case "torch":
                     GameManager.TorchLevel = 1;
