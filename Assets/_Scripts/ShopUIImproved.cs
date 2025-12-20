@@ -138,26 +138,10 @@ public class ShopUI : MonoBehaviour
     {
         if (currentMerchant == null) return;
 
-        MerchantCutscene.MerchantType type = currentMerchant.merchantType;
-
-        string merchantName = "Merchant";
-        Sprite merchantPortrait = null;
-
-        switch (type)
-        {
-            case MerchantCutscene.MerchantType.Gregor:
-                merchantName = "Gregor";
-                merchantPortrait = gregorFace;
-                break;
-            case MerchantCutscene.MerchantType.Viktor:
-                merchantName = "Viktor";
-                merchantPortrait = viktorFace;
-                break;
-            case MerchantCutscene.MerchantType.ThirdMerchant:
-                merchantName = "???";
-                merchantPortrait = gregorFace; // Use generic sprite
-                break;
-        }
+        // Always pull the *current* merchant name from the global merchant chain.
+        // This guarantees Viktor II, Viktor III, ... are named correctly everywhere.
+        string merchantName = GameManager.GetCurrentMerchantName();
+        Sprite merchantPortrait = (GameManager.MerchantIndex <= 0) ? gregorFace : viktorFace;
 
         nameLabel.text = merchantName;
 
@@ -294,16 +278,7 @@ public class ShopUI : MonoBehaviour
 
     string GetMerchantName()
     {
-        if (currentMerchant == null) return "Merchant";
-
-        switch (currentMerchant.merchantType)
-        {
-            case MerchantCutscene.MerchantType.Gregor:
-                return "Gregor";
-            case MerchantCutscene.MerchantType.Viktor:
-                return "Viktor";
-            default:
-                return "???";
-        }
+        // Used for UI strings like "Gregor: ...".
+        return GameManager.GetCurrentMerchantName();
     }
 }

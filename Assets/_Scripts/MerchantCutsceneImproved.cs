@@ -22,7 +22,7 @@ public class MerchantCutscene : MonoBehaviour
     private bool isInteractionOpen = false;
     private Transform playerTransform;
 
-    public enum MerchantType { Gregor, Viktor, ThirdMerchant }
+    public enum MerchantType { Gregor, Viktor }
     public MerchantType merchantType = MerchantType.Gregor;
 
     void Start()
@@ -39,23 +39,17 @@ public class MerchantCutscene : MonoBehaviour
 
     void UpdateMerchantAppearance()
     {
-        if (GameManager.StoryState == 0)
+        // We drive the entire merchant identity off the merchant chain.
+        // 0 = Gregor, 1+ = Viktor variants.
+        if (GameManager.MerchantIndex <= 0)
         {
             if (npcSprite) npcSprite.sprite = gregorAlive;
             merchantType = MerchantType.Gregor;
         }
-        else if (GameManager.StoryState == 1)
-        {
-            if (npcSprite) npcSprite.sprite = gregorDead;
-        }
-        else if (GameManager.StoryState == 2)
+        else
         {
             if (npcSprite) npcSprite.sprite = viktorSprite;
             merchantType = MerchantType.Viktor;
-        }
-        else
-        {
-            merchantType = MerchantType.ThirdMerchant;
         }
     }
 
@@ -119,7 +113,8 @@ public class MerchantCutscene : MonoBehaviour
             if (controller) controller.enabled = false;
         }
 
-        npcSprite.sprite = gregorDead;
+        if (npcSprite != null)
+            npcSprite.sprite = gregorDead;
         yield return new WaitForSeconds(2f);
 
         if (guardGroup != null) guardGroup.SetActive(true);
@@ -128,7 +123,9 @@ public class MerchantCutscene : MonoBehaviour
 
         yield return new WaitForSeconds(3f);
 
-        GameManager.StoryState = 2; 
+        // Advance the merchant chain so the *next* merchant correctly references this murder.
+        GameManager.RegisterMerchantMurder();
+
         GameManager.TotalGold = 0;
         GameManager.RunCount++;
 
@@ -147,9 +144,6 @@ public class MerchantCutscene : MonoBehaviour
             
             case MerchantType.Viktor:
                 return GetViktorDialogue(run, price);
-            
-            case MerchantType.ThirdMerchant:
-                return GetThirdMerchantDialogue(run, price);
             
             default:
                 return "...";
@@ -194,23 +188,26 @@ public class MerchantCutscene : MonoBehaviour
 
     string GetViktorDialogue(int run, int price)
     {
+        string me = GameManager.GetCurrentMerchantName();
+        string prev = GameManager.GetPreviousMerchantName();
+
         if (run == 1)
-            return "...Hey. Name's Viktor.\n\nHeard what happened to Gregor. Bold move.";
+            return $"...Hey. Name's {me}.\n\nHeard you killed {prev}. Bold move.";
         
         if (run == 2)
-            return "Me? I don't judge. I just do business.\n\nSame deal as Gregor. Different face.";
+            return $"Me? I don't judge. I just do business.\n\nSame deal as {prev}. Different face.";
         
         if (run == 3)
             return $"Freedom costs {price}g. Same tunnels. Same enemies.\n\nSame outcome, probably.";
         
         if (run == 4)
-            return "Don't get any ideas. I'm tougher than Gregor.\n\n...Not that it matters.";
+            return $"Don't get any ideas. I'm tougher than {prev}.\n\n...Not that it matters.";
         
         if (run == 5)
             return $"The price is {price}g now. Surprised?\n\nThe house always wins.";
         
         if (run == 6)
-            return "You killed Gregor thinking it would change things.\n\nHow'd that work out?";
+            return $"You killed {prev} thinking it would change things.\n\nHow'd that work out?";
         
         if (run == 7)
             return $"{price}g. Time is money. And you're out of both.";
@@ -222,10 +219,5 @@ public class MerchantCutscene : MonoBehaviour
             return $"Run #{run}. Price: {price}g.\n\nYou gonna try to kill me too? Go ahead. See what happens.";
         
         return $"The cycle continues. {price}g for freedom that doesn't exist.";
-    }
-
-    string GetThirdMerchantDialogue(int run, int price)
-    {
-        return $"Another cellmate, another deal.\n\nYou know this never ends, right?\n\n{price}g for 'freedom'.";
     }
 }

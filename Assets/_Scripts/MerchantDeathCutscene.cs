@@ -258,7 +258,12 @@ public class MerchantDeathCutscene : MonoBehaviour
             yield return new WaitForSeconds(1.0f);
         }
 
-        yield return StartCoroutine(ShowDialogue("GUARD", "By the gods— GREGOR!", guard1Object != null ? guard1Object.transform : null, 2f));
+        GameManager.RegisterMerchantMurder();
+
+        string prevMerchant = GameManager.GetPreviousMerchantName();
+        string myName = GameManager.GetCurrentMerchantName();
+
+        yield return StartCoroutine(ShowDialogue("GUARD", $"By the gods— {prevMerchant}!", guard1Object != null ? guard1Object.transform : null, 2f));
         yield return StartCoroutine(ShowDialogue("GUARD", "He's dead! The new inmate killed him!", guard2Object != null ? guard2Object.transform : null, 2.5f));
 
         // ═══════════════════════════════════════════════════════════
@@ -278,7 +283,7 @@ public class MerchantDeathCutscene : MonoBehaviour
 
         yield return StartCoroutine(ShowDialogue("HEAD GUARD", "Do you have ANY idea what you've done?", headGuardObject.transform, 3f));
         yield return new WaitForSeconds(0.5f);
-        yield return StartCoroutine(ShowDialogue("HEAD GUARD", "Gregor was a MODEL prisoner.", headGuardObject.transform, 2.5f));
+        yield return StartCoroutine(ShowDialogue("HEAD GUARD", $"{prevMerchant} was a MODEL prisoner.", headGuardObject.transform, 2.5f));
         yield return StartCoroutine(ShowDialogue("HEAD GUARD", "He was on the REFORM COUNCIL.", headGuardObject.transform, 2.5f));
         yield return StartCoroutine(ShowDialogue("HEAD GUARD", "He was helping with your appeal!", headGuardObject.transform, 3f));
 
@@ -400,18 +405,22 @@ public class MerchantDeathCutscene : MonoBehaviour
 
         yield return new WaitForSeconds(0.8f);
 
-        yield return StartCoroutine(ShowDialogue("VIKTOR", "...Hey.", viktorObject.transform, 2f));
-        yield return StartCoroutine(ShowDialogue("VIKTOR", "Name's Viktor.", viktorObject.transform, 2.5f));
+        // Advance the merchant chain now that the player has murdered the current merchant.
+        // This ensures the newly introduced merchant speaks about the correct previous merchant.
+
+
+        yield return StartCoroutine(ShowDialogue(myName.ToUpperInvariant(), "...Hey.", viktorObject.transform, 2f));
+        yield return StartCoroutine(ShowDialogue(myName.ToUpperInvariant(), $"Name's {myName}.", viktorObject.transform, 2.5f));
         yield return new WaitForSeconds(0.5f);
-        yield return StartCoroutine(ShowDialogue("VIKTOR", "Heard you killed Gregor. Bold.", viktorObject.transform, 3f));
+        yield return StartCoroutine(ShowDialogue(myName.ToUpperInvariant(), $"Heard you killed {prevMerchant}. Bold.", viktorObject.transform, 3f));
         yield return new WaitForSeconds(0.8f);
-        yield return StartCoroutine(ShowDialogue("VIKTOR", "Me? I don't judge.", viktorObject.transform, 2.5f));
+        yield return StartCoroutine(ShowDialogue(myName.ToUpperInvariant(), "Me? I don't judge.", viktorObject.transform, 2.5f));
         yield return new WaitForSeconds(0.5f);
-        yield return StartCoroutine(ShowDialogue("VIKTOR", "I just do business.", viktorObject.transform, 3f));
+        yield return StartCoroutine(ShowDialogue(myName.ToUpperInvariant(), "I just do business.", viktorObject.transform, 3f));
         yield return new WaitForSeconds(1f);
-        yield return StartCoroutine(ShowDialogue("VIKTOR", "Want out?", viktorObject.transform, 2.5f));
+        yield return StartCoroutine(ShowDialogue(myName.ToUpperInvariant(), "Want out?", viktorObject.transform, 2.5f));
         yield return new WaitForSeconds(0.8f);
-        yield return StartCoroutine(ShowDialogue("VIKTOR", "100 Gold. Same deal.", viktorObject.transform, 3.5f));
+        yield return StartCoroutine(ShowDialogue(myName.ToUpperInvariant(), "100 Gold. Same deal.", viktorObject.transform, 3.5f));
 
 
         HideDialogue();
