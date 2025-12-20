@@ -34,11 +34,6 @@ public class MerchantCutscene : MonoBehaviour
 
         UpdateMerchantAppearance();
 
-        if (GameManager.RunCount != 1)
-        {
-            if (guardGroup != null) guardGroup.SetActive(false);
-        }
-
         if (interactionPrompt != null) interactionPrompt.SetActive(false);
     }
 

@@ -54,7 +54,7 @@ public class IntroSequence : MonoBehaviour
         }
         else
         {
-            EndSequenceImmediate();
+            PerformSkip();
         }
     }
 
@@ -278,7 +278,7 @@ public class IntroSequence : MonoBehaviour
         {
             ui.ShowNarrative("???", "...");
             yield return new WaitForSeconds(2f);
-            ui.ShowNarrative("Cellmate", "Ah... Fresh meat.");
+            ui.ShowNarrative("???", "Ah... Fresh meat.");
             yield return new WaitForSeconds(2.5f);
             ui.ShowNarrative("Gregor", "Name's Gregor.");
             yield return new WaitForSeconds(2f);

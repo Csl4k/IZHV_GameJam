@@ -224,6 +224,81 @@ Transform:
   - {fileID: 408073917}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &72782646
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 72782649}
+  - component: {fileID: 72782648}
+  - component: {fileID: 72782647}
+  m_Layer: 5
+  m_Name: Image
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!114 &72782647
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 72782646}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 0, g: 0, b: 0, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &72782648
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 72782646}
+  m_CullTransparentMesh: 1
+--- !u!224 &72782649
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 72782646}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1084822648}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0.0000076293945}
+  m_SizeDelta: {x: 2036.786, y: 1153.455}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &120769732
 GameObject:
   m_ObjectHideFlags: 0
@@ -485,7 +560,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 701234277}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: ShopUI, Assembly-CSharp
         m_MethodName: BuyPotion
         m_Mode: 1
@@ -3884,7 +3959,6 @@ GameObject:
   - component: {fileID: 294674265}
   - component: {fileID: 294674267}
   - component: {fileID: 294674269}
-  - component: {fileID: 294674270}
   - component: {fileID: 294674271}
   m_Layer: 0
   m_Name: Merchant
@@ -4031,25 +4105,6 @@ CircleCollider2D:
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
   m_Radius: 0.5
---- !u!114 &294674270
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 294674264}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7ea31ae3665c514418c90f12409723ad, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  npcSprite: {fileID: 294674265}
-  gregorAlive: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
-  gregorDead: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
-  viktorSprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
-  guardGroup: {fileID: 41590770}
-  interactionPrompt: {fileID: 1899910241}
-  merchantType: 0
 --- !u!114 &294674271
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4127,6 +4182,37 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: bbeae399b02adbe4893161b088117710, type: 3}
+--- !u!1 &300297172
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 300297173}
+  m_Layer: 0
+  m_Name: Player throw
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &300297173
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 300297172}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &322563876
 GameObject:
   m_ObjectHideFlags: 0
@@ -6273,7 +6359,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 701234277}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: ShopUI, Assembly-CSharp
         m_MethodName: BuyArmor
         m_Mode: 1
@@ -6366,7 +6452,6 @@ GameObject:
   - component: {fileID: 701234275}
   - component: {fileID: 701234274}
   - component: {fileID: 701234273}
-  - component: {fileID: 701234277}
   - component: {fileID: 701234278}
   m_Layer: 5
   m_Name: ShopInterface
@@ -6458,38 +6543,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
---- !u!114 &701234277
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 701234272}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 63759043aee7887479133c30e2d6b72d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  rootPanel: {fileID: 2128132104}
-  nameLabel: {fileID: 976508612}
-  dialogueLabel: {fileID: 487542684}
-  portraitImage: {fileID: 0}
-  shopButtonsContainer: {fileID: 981786059}
-  btnPotion: {fileID: 148522576}
-  btnSword: {fileID: 1517597584}
-  btnArmor: {fileID: 683932398}
-  btnTorch: {fileID: 1877586155}
-  btnFreedom: {fileID: 908761335}
-  btnAttack: {fileID: 1190215093}
-  txtPotion: {fileID: 1064951769}
-  txtSword: {fileID: 947611974}
-  txtArmor: {fileID: 1737514762}
-  txtTorch: {fileID: 1687726890}
-  txtFreedom: {fileID: 1389911584}
-  gregorFace: {fileID: 0}
-  viktorFace: {fileID: 0}
-  guardFace: {fileID: 0}
-  headGuardFace: {fileID: 0}
 --- !u!114 &701234278
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6763,7 +6816,6 @@ GameObject:
   - component: {fileID: 867586532}
   - component: {fileID: 867586531}
   - component: {fileID: 867586530}
-  - component: {fileID: 867586529}
   - component: {fileID: 867586528}
   m_Layer: 0
   m_Name: Merchant (1)
@@ -6771,7 +6823,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &867586527
 Transform:
   m_ObjectHideFlags: 0
@@ -6807,25 +6859,6 @@ MonoBehaviour:
   guardGroup: {fileID: 41590770}
   interactionPrompt: {fileID: 1679139497}
   deathCutsceneManager: {fileID: 1907931627}
-  merchantType: 0
---- !u!114 &867586529
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 867586526}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7ea31ae3665c514418c90f12409723ad, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  npcSprite: {fileID: 867586532}
-  gregorAlive: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
-  gregorDead: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
-  viktorSprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
-  guardGroup: {fileID: 41590770}
-  interactionPrompt: {fileID: 1679139497}
   merchantType: 0
 --- !u!58 &867586530
 CircleCollider2D:
@@ -7032,7 +7065,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 701234277}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: ShopUI, Assembly-CSharp
         m_MethodName: BuyFreedom
         m_Mode: 1
@@ -7686,6 +7719,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1064951767}
   m_CullTransparentMesh: 1
+--- !u!224 &1084822648 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 6707308745389522718, guid: f86258624ba2a4f41a8dbe68beadf016, type: 3}
+  m_PrefabInstance: {fileID: 9094318033009555006}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1163416548
 GameObject:
   m_ObjectHideFlags: 0
@@ -7800,7 +7838,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 701234277}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: ShopUI, Assembly-CSharp
         m_MethodName: ClickAttack
         m_Mode: 1
@@ -8065,7 +8103,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1425457659
 Transform:
   m_ObjectHideFlags: 0
@@ -8216,7 +8254,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 701234277}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: ShopUI, Assembly-CSharp
         m_MethodName: BuySword
         m_Mode: 1
@@ -8892,7 +8930,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 701234277}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: ShopUI, Assembly-CSharp
         m_MethodName: BuyTorch
         m_Mode: 1
@@ -9073,6 +9111,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e5507ab6574c47742ad862067ae88473, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  fadeImage: {fileID: 72782647}
   gregorTransform: {fileID: 294674266}
   gregorObject: {fileID: 294674264}
   gregorSprite: {fileID: 294674265}
@@ -9094,6 +9133,7 @@ MonoBehaviour:
   playerController: {fileID: 1717579861}
   playerWalkSpeed: 3
   playerColliders: []
+  playerThrowPosition: {fileID: 300297173}
   keyPickupPoint: {fileID: 1018300027}
   doorUnlockPoint: {fileID: 322563877}
   outsideCellPoint: {fileID: 567690557}
@@ -9103,7 +9143,7 @@ MonoBehaviour:
   cameraFollowScript: {fileID: 175991629}
   cameraShakeIntensity: 0.2
   cameraShakeDuration: 0.5
-  cameraMoveSpeed: 2.5
+  cameraMoveSpeed: 3.3
   cameraZoomDramatic: 3.5
   cameraZoomNormal: 5
   pauseAfterMurder: 2
@@ -9473,7 +9513,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 6707308745389522718, guid: f86258624ba2a4f41a8dbe68beadf016, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 72782649}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f86258624ba2a4f41a8dbe68beadf016, type: 3}
 --- !u!1660057539 &9223372036854775807
@@ -9509,3 +9552,4 @@ SceneRoots:
   - {fileID: 322563877}
   - {fileID: 567690557}
   - {fileID: 843269350}
+  - {fileID: 300297173}

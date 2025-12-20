@@ -4,6 +4,9 @@ using UnityEngine.SceneManagement;
 
 public class MerchantDeathCutscene : MonoBehaviour
 {
+    [Header("Screen Fade")]
+    public UnityEngine.UI.Image fadeImage;
+
     [Header("Actors")]
     public Transform gregorTransform;
     public GameObject gregorObject;
@@ -35,6 +38,7 @@ public class MerchantDeathCutscene : MonoBehaviour
     public Collider2D[] playerColliders;
 
     [Header("Escape / Door Waypoints")]
+    public Transform playerThrowPosition;
     public Transform keyPickupPoint;                // Where player stands to take the key (near Gregor)
     public Transform doorUnlockPoint;               // Where player uses the key (at the door)
     public Transform outsideCellPoint;              // Just outside the cell door
@@ -100,12 +104,6 @@ public class MerchantDeathCutscene : MonoBehaviour
             dialogueColorDefault = dialogueText.color;
         }
 
-        if (viktorObject != null) viktorObject.SetActive(false);
-        if (guard1Object != null) guard1Object.SetActive(false);
-        if (guard2Object != null) guard2Object.SetActive(false);
-        if (headGuardObject != null) headGuardObject.SetActive(false);
-        if (dialoguePanel != null) dialoguePanel.SetActive(false);
-
         if (shopUI != null)
         {
             shopUI.CloseShop();
@@ -116,6 +114,11 @@ public class MerchantDeathCutscene : MonoBehaviour
 
     public void TriggerDeathSequence()
     {
+        if (viktorObject != null) viktorObject.SetActive(false);
+        if (guard1Object != null) guard1Object.SetActive(false);
+        if (guard2Object != null) guard2Object.SetActive(false);
+        if (headGuardObject != null) headGuardObject.SetActive(false);
+        if (dialoguePanel != null) dialoguePanel.SetActive(false);
         buttons.SetActive(false);
         if (cutsceneActive) return;
         cutsceneActive = true;
@@ -149,8 +152,7 @@ public class MerchantDeathCutscene : MonoBehaviour
             cameraFollowScript.enabled = false;
 
 
-        if (gregorTransform != null)
-            yield return StartCoroutine(PanCameraTo(gregorTransform.position, cameraMoveSpeed * 1.2f));
+        yield return StartCoroutine(PanCameraTo(player.position, cameraMoveSpeed * 1.2f));
 
         yield return StartCoroutine(ShowDialogue("YOU", "You were just going to keep raising prices.", player, 2.7f));
         yield return StartCoroutine(ShowDialogue("YOU", "I was never going to get enough money.", player, 2.7f));
@@ -218,7 +220,7 @@ public class MerchantDeathCutscene : MonoBehaviour
         }
 
         // ═══════════════════════════════════════════════════════════
-        // PHASE 2: GUARDS DISCOVER THE MURDER (FIXED TIMING)
+        // PHASE 2: GUARDS DISCOVER THE MURDER
         // ═══════════════════════════════════════════════════════════
 
         if (guardFootstepsSound != null)
@@ -248,9 +250,12 @@ public class MerchantDeathCutscene : MonoBehaviour
 
         PlaySound(guardShoutSound);
 
+
+        yield return new WaitForSeconds(2.0f);
         if (gregorTransform != null)
         {
             yield return StartCoroutine(PanCameraTo(gregorTransform.position, cameraMoveSpeed * 2.0f));
+            yield return new WaitForSeconds(1.0f);
         }
 
         yield return StartCoroutine(ShowDialogue("GUARD", "By the gods— GREGOR!", guard1Object != null ? guard1Object.transform : null, 2f));
@@ -267,8 +272,9 @@ public class MerchantDeathCutscene : MonoBehaviour
             yield return StartCoroutine(MoveActorTo(headGuardObject.transform, headGuardFinalPosition.position, playerWalkSpeed));
         }
 
-        yield return StartCoroutine(ZoomCamera(cameraZoomDramatic, 1.5f));
+        
         yield return StartCoroutine(PanCameraTo(headGuardObject.transform.position, cameraMoveSpeed));
+        yield return StartCoroutine(ZoomCamera(cameraZoomDramatic, 1.5f));
 
         yield return StartCoroutine(ShowDialogue("HEAD GUARD", "Do you have ANY idea what you've done?", headGuardObject.transform, 3f));
         yield return new WaitForSeconds(0.5f);
@@ -280,18 +286,21 @@ public class MerchantDeathCutscene : MonoBehaviour
         yield return new WaitForSeconds(1.5f);
 
         yield return StartCoroutine(PanCameraTo(headGuardObject.transform.position, cameraMoveSpeed));
-        yield return StartCoroutine(ShowDialogue("HEAD GUARD", "You were set for release...", headGuardObject.transform, 3f, true));
+        yield return StartCoroutine(ShowDialogue("HEAD GUARD", "You were set for release...", headGuardObject.transform, 3f));
 
-        yield return new WaitForSeconds(1.5f);
+        //yield return new WaitForSeconds(3f);
+        
+        yield return StartCoroutine(ShowDialogue("HEAD GUARD", "TOMORROW.", headGuardObject.transform, 0f));
         yield return StartCoroutine(CameraShake(cameraShakeIntensity * 1.5f, 0.6f));
-        yield return StartCoroutine(ShowDialogue("HEAD GUARD", "TOMORROW.", headGuardObject.transform, 3f, true));
 
         yield return new WaitForSeconds(2f);
         yield return StartCoroutine(ShowDialogue("HEAD GUARD", "Now?", headGuardObject.transform, 2f));
+        
+        yield return StartCoroutine(ShowDialogue("HEAD GUARD", "Ten more years. Minimum.", headGuardObject.transform, 0f));
         yield return StartCoroutine(CameraShake(cameraShakeIntensity, cameraShakeDuration));
-        yield return StartCoroutine(ShowDialogue("HEAD GUARD", "Ten more years. Minimum.", headGuardObject.transform, 3.5f, true));
+        yield return new WaitForSeconds(2.5f);
 
-        yield return new WaitForSeconds(1f);
+        if (gregorObject != null) gregorObject.SetActive(false);
 
         if (guard1Object != null)
             StartCoroutine(MoveActorTo(guard1Object.transform, player.position + Vector3.left * 1.5f, playerWalkSpeed));
@@ -302,9 +311,9 @@ public class MerchantDeathCutscene : MonoBehaviour
         yield return new WaitForSeconds(1.0f);
 
         yield return StartCoroutine(ShowDialogue("HEAD GUARD", "Drag him back to his cell.", headGuardObject.transform, 2.5f));
+        HideDialogue();
 
-
-        if (outsideCellPoint != null && doorUnlockPoint != null && player != null)
+        if (outsideCellPoint != null && playerThrowPosition != null && player != null)
         {
 
             if (guard1Object != null)
@@ -319,25 +328,13 @@ public class MerchantDeathCutscene : MonoBehaviour
             yield return StartCoroutine(CameraShake(cameraShakeIntensity, 0.2f));
 
 
-            yield return StartCoroutine(FollowCameraForMove(player, doorUnlockPoint.position, escapeWalkSpeed * 2.5f, 0.1f));
+            yield return StartCoroutine(FollowCameraForMove(player, playerThrowPosition.position, escapeWalkSpeed * 2.5f, 0.1f));
         }
 
         SetPlayerCollision(true);
 
         // ═══════════════════════════════════════════════════════════
-        // PHASE 4: REVEAL
-        // ═══════════════════════════════════════════════════════════
-
-        HideDialogue();
-
-        yield return StartCoroutine(FadeToBlack(2f));
-        yield return StartCoroutine(ShowTextOnBlack("It never ended.", 3f));
-        yield return new WaitForSeconds(1f);
-        yield return StartCoroutine(ShowTextOnBlack("It was never meant to.", 4f));
-        yield return new WaitForSeconds(2f);
-
-        // ═══════════════════════════════════════════════════════════
-        // PHASE 5: VIKTOR INTRODUCTION (FIXED POSITIONING)
+        // PHASE 5: VIKTOR INTRODUCTION
         // ═══════════════════════════════════════════════════════════
 
         if (gregorObject != null) gregorObject.SetActive(false);
@@ -351,23 +348,7 @@ public class MerchantDeathCutscene : MonoBehaviour
             viktorObject.SetActive(true);
         }
 
-        if (mainCamera != null)
-        {
-            mainCamera.orthographicSize = originalCameraSize;
-            mainCamera.transform.position = originalCameraPos;
-        }
-
-        yield return StartCoroutine(FadeFromBlack(2f));
-
         Transform focusPoint = (guardThrowPosition != null) ? guardThrowPosition : viktorThrowStartPoint;
-
-        if (focusPoint != null)
-        {
-            yield return StartCoroutine(PanCameraTo(focusPoint.position, cameraMoveSpeed));
-        }
-
-        PlaySound(doorSlamSound);
-        yield return new WaitForSeconds(0.3f);
 
         if (guard1Object != null)
         {
@@ -376,11 +357,28 @@ public class MerchantDeathCutscene : MonoBehaviour
             if (guardThrowPosition != null)
                 guard1Object.transform.position = guardThrowPosition.position;
             else
-                guard1Object.transform.position = guard1EntryPoint.position; 
+                guard1Object.transform.position = guard1EntryPoint.position;
         }
 
-        yield return StartCoroutine(ShowDialogue("GUARD", "Your new cellmate. Behave this time.", guard1Object != null ? guard1Object.transform : null, 2.5f));
+        yield return new WaitForSeconds(1.5f);
 
+        yield return StartCoroutine(FadeToBlack(2f));
+        yield return new WaitForSeconds(2.5f);
+        yield return StartCoroutine(FadeFromBlack(2f));
+
+        if (focusPoint != null)
+        {
+            yield return StartCoroutine(PanCameraTo(focusPoint.position, cameraMoveSpeed));
+        }
+
+        PlaySound(doorSlamSound);
+        yield return new WaitForSeconds(1f);
+
+
+
+
+        yield return StartCoroutine(ShowDialogue("GUARD", "Your new cellmate. Behave this time.", guard1Object != null ? guard1Object.transform : null, 2.5f));
+        HideDialogue();
 
         if (viktorObject != null && viktorSpawnPoint != null && viktorThrowStartPoint != null)
         {
@@ -413,9 +411,8 @@ public class MerchantDeathCutscene : MonoBehaviour
         yield return new WaitForSeconds(1f);
         yield return StartCoroutine(ShowDialogue("VIKTOR", "Want out?", viktorObject.transform, 2.5f));
         yield return new WaitForSeconds(0.8f);
-        yield return StartCoroutine(ShowDialogue("VIKTOR", "100 Gold. Same deal.", viktorObject.transform, 3.5f, true));
+        yield return StartCoroutine(ShowDialogue("VIKTOR", "100 Gold. Same deal.", viktorObject.transform, 3.5f));
 
-        yield return new WaitForSeconds(2f);
 
         HideDialogue();
 
@@ -627,39 +624,15 @@ public class MerchantDeathCutscene : MonoBehaviour
 
     private IEnumerator ShowDialogue(string speakerName, string text, Transform speaker, float duration, bool emphasize = false)
     {
-        if (dialoguePanel != null) dialoguePanel.SetActive(true);
-        if (speakerNameText != null) speakerNameText.text = speakerName;
+        // Use the same narrative UI IntroSequence uses
+        if (shopUI != null)
+            shopUI.ShowNarrative(speakerName, text);
 
-        if (dialogueText != null)
-        {
-            dialogueText.fontStyle = dialogueFontStyleDefault;
-            dialogueText.fontSize = dialogueFontSizeDefault;
-            dialogueText.alignment = dialogueAlignmentDefault;
-            dialogueText.color = dialogueColorDefault;
-
-            dialogueText.text = text;
-
-            if (emphasize)
-            {
-                dialogueText.fontStyle = TMPro.FontStyles.Bold;
-                dialogueText.fontSize = dialogueFontSizeDefault * 1.2f;
-            }
-        }
-
+        // Keep your camera focus behavior
         if (speaker != null && mainCamera != null)
-        {
             yield return StartCoroutine(PanCameraTo(speaker.position, cameraMoveSpeed * 1.5f));
-        }
 
         yield return new WaitForSeconds(duration);
-
-        if (dialogueText != null)
-        {
-            dialogueText.fontStyle = dialogueFontStyleDefault;
-            dialogueText.fontSize = dialogueFontSizeDefault;
-            dialogueText.alignment = dialogueAlignmentDefault;
-            dialogueText.color = dialogueColorDefault;
-        }
     }
 
     private void HideDialogue()
@@ -675,14 +648,44 @@ public class MerchantDeathCutscene : MonoBehaviour
         }
     }
 
+
     private IEnumerator FadeToBlack(float duration)
     {
-        yield return new WaitForSeconds(duration);
+        if (fadeImage == null) yield break;
+
+        fadeImage.gameObject.SetActive(true);
+        Color c = fadeImage.color;
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            c.a = Mathf.Lerp(0f, 1f, elapsed / duration);
+            fadeImage.color = c;
+            yield return null;
+        }
+
+        c.a = 1f;
+        fadeImage.color = c;
     }
 
     private IEnumerator FadeFromBlack(float duration)
     {
-        yield return new WaitForSeconds(duration);
+        if (fadeImage == null) yield break;
+
+        Color c = fadeImage.color;
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            c.a = Mathf.Lerp(1f, 0f, elapsed / duration);
+            fadeImage.color = c;
+            yield return null;
+        }
+
+        c.a = 0f;
+        fadeImage.color = c;
     }
 
     private IEnumerator ShowTextOnBlack(string text, float duration)
