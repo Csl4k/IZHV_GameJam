@@ -90,7 +90,7 @@ public class ShopUI : MonoBehaviour
     void RefreshPricesAndButtons()
     {
 
-        int potionPrice = GameManager.GetPotionPrice(30, );
+        int potionPrice = GameManager.GetPotionPrice(30, GameManager.MerchantIndex);
         int swordPrice = GameManager.GetUpgradePrice(50, GameManager.SwordLevel);
         int armorPrice = GameManager.GetUpgradePrice(40, GameManager.ArmorLevel);
         int torchPrice = GameManager.GetUpgradePrice(100, GameManager.TorchLevel);

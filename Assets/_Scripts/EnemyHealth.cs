@@ -5,6 +5,7 @@ public class EnemyHealth : MonoBehaviour
 {
     [Header("Stats")]
     public int hp = 3;
+    public float healthPerMerchant = 0.25f;
     public GameObject coinPrefab;
 
     [Header("Knockback Settings")]
@@ -20,10 +21,18 @@ public class EnemyHealth : MonoBehaviour
 
     public void Start()
     {
+        int tier = Mathf.Max(0, GameManager.MerchantIndex);
+
+        float mult = 1f + healthPerMerchant * tier;
+
+        // Scale hp once per spawn. This increases enemy health each new merchant.
+        hp = Mathf.Max(1, Mathf.RoundToInt(hp * mult));
+
         rb = GetComponent<Rigidbody2D>();
         sr = GetComponent<SpriteRenderer>();
         aiScript = GetComponent<EnemyAI>();
     }
+
 
 
 
