@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
 
 public class EnemyAI : MonoBehaviour
@@ -24,39 +24,72 @@ public class EnemyAI : MonoBehaviour
     public float shortLungeSpeed = 6f;
 
     private bool isAttacking = false;
+    private bool isStunned = false;
+
+    private bool isDead = false;
+    public bool IsDead => isDead;
+
+    private bool canSeePlayerCached = false;
+    public bool IsAware => canSeePlayerCached || alertTimer > 0f;
+
     private Rigidbody2D rb;
     private Rigidbody2D playerRb;
 
     private float baseDetectRange;
+    private SpriteRenderer sr;
     private Vector2 lastSeenPosition;
     private float alertTimer = 0f;
+
+    private Color originalColor;
+
+
+
+    private Coroutine stunCoroutine;
+    private Color baseColor;
+    public bool IsStunned => isStunned;
+    public Color BaseColor => baseColor;
+
+    private Coroutine attackCoroutine;
+
+    public bool IsAttacking => isAttacking;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        sr = GetComponent<SpriteRenderer>();
 
-        // store the starting range so we can double it later
         baseDetectRange = detectRange;
 
-        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
-        if (playerObj != null)
+
+        if (sr != null) baseColor = sr.color;
+
+
+        if (player == null)
         {
-            player = playerObj.transform;
-            playerRb = playerObj.GetComponent<Rigidbody2D>();
+            GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+            if (playerObj != null)
+            {
+                player = playerObj.transform;
+                playerRb = playerObj.GetComponent<Rigidbody2D>();
+            }
         }
+
 
         if (swordCollider != null) swordCollider.enabled = false;
     }
 
+
+
     void Update()
     {
         if (player == null) return;
+        if (isStunned) return;
 
         float distance = Vector2.Distance(transform.position, player.position);
 
-        // vision
         bool wallInWay = Physics2D.Linecast(transform.position, player.position, obstacleLayer);
         bool canSeePlayer = (distance < detectRange) && !wallInWay;
+        canSeePlayerCached = canSeePlayer;
 
         if (canSeePlayer)
         {
@@ -67,68 +100,86 @@ public class EnemyAI : MonoBehaviour
 
         if (!isAttacking)
         {
-            if (canSeePlayer)
-            {
-                RotateTowards(player.position);
-            }
-            else if (alertTimer > 0)
-            {
-                RotateTowards(lastSeenPosition);
-            }
+            if (canSeePlayer) RotateTowards(player.position);
+            else if (alertTimer > 0) RotateTowards(lastSeenPosition);
         }
 
-        // behavior
         if (!isAttacking)
         {
             if (canSeePlayer)
             {
-                // logic: Rush, Walk, or Fight
                 if (distance > rushTriggerDistance)
                 {
-                    StartCoroutine(DashAttackRoutine(true));
+                    StartAttack(DashAttackRoutine(true));
                 }
                 else if (distance > attackRange)
                 {
-                    // walk
                     transform.position += transform.right * moveSpeed * Time.deltaTime;
                 }
                 else
                 {
-                    // fight
-                    if (Random.value > 0.5f) StartCoroutine(SwingRoutine());
-                    else StartCoroutine(DashAttackRoutine(false));
+                    if (Random.value > 0.5f) StartAttack(SwingRoutine());
+                    else StartAttack(DashAttackRoutine(false));
                 }
             }
-
             else if (alertTimer > 0)
             {
                 alertTimer -= Time.deltaTime;
 
-                // move to the last position from memory
                 float distToTarget = Vector2.Distance(transform.position, lastSeenPosition);
                 if (distToTarget > 0.5f)
                 {
                     transform.position = Vector2.MoveTowards(transform.position, lastSeenPosition, moveSpeed * Time.deltaTime);
                 }
             }
-            // idle
             else
             {
-                detectRange = baseDetectRange; // reset range
+                detectRange = baseDetectRange;
             }
         }
     }
 
-    void RotateTowards(Vector2 targetPos)
+    private void StartAttack(IEnumerator routine)
+    {
+        if (attackCoroutine != null) StopCoroutine(attackCoroutine);
+        attackCoroutine = StartCoroutine(routine);
+    }
+
+    private void RotateTowards(Vector2 targetPos)
     {
         Vector3 direction = (Vector3)targetPos - transform.position;
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
         transform.rotation = Quaternion.Euler(0, 0, angle);
     }
 
+    private void CancelCurrentAttackImmediate()
+    {
+        if (attackCoroutine != null)
+        {
+            StopCoroutine(attackCoroutine);
+            attackCoroutine = null;
+        }
+
+        isAttacking = false;
+
+        if (rb != null) rb.velocity = Vector2.zero;
+
+        if (swordCollider != null) swordCollider.enabled = false;
+
+        if (weaponPivot != null) weaponPivot.localRotation = Quaternion.identity;
+    }
+
+    private void SetColorSafe(Color c)
+    {
+        if (sr == null) return;
+        if (isStunned) return; // lock color during stun
+        sr.color = c;
+    }
+
     IEnumerator DashAttackRoutine(bool isLongRush)
     {
         isAttacking = true;
+
         rb.velocity = Vector2.zero;
 
         float speed = isLongRush ? longRushSpeed : shortLungeSpeed;
@@ -140,14 +191,13 @@ public class EnemyAI : MonoBehaviour
 
         if (weaponPivot != null) weaponPivot.localRotation = Quaternion.identity;
 
-        SpriteRenderer sr = GetComponentInChildren<SpriteRenderer>();
-        Color originalColor = (sr != null) ? sr.color : Color.white;
-        if (sr) sr.color = Color.red;
+        SetColorSafe(Color.red);
 
         float timer = 0f;
         while (timer < windup)
         {
             if (!this.enabled) yield break;
+            if (isStunned) yield break;
 
             bool wallInWay = Physics2D.Linecast(transform.position, player.position, obstacleLayer);
             if (!wallInWay)
@@ -159,26 +209,42 @@ public class EnemyAI : MonoBehaviour
             {
                 RotateTowards(lastSeenPosition);
             }
+
             timer += Time.deltaTime;
             yield return null;
         }
 
+        if (isStunned) yield break;
+
         if (swordCollider != null) swordCollider.enabled = true;
 
- 
         rb.velocity = transform.right * speed;
 
-        yield return new WaitForSeconds(duration);
-
+        timer = 0f;
+        while (timer < duration)
+        {
+            if (isStunned) yield break;
+            timer += Time.deltaTime;
+            yield return null;
+        }
 
         rb.velocity = Vector2.zero;
         rb.drag = startDrag;
 
         if (swordCollider != null) swordCollider.enabled = false;
-        if (sr) sr.color = originalColor;
 
-        yield return new WaitForSeconds(attackCooldown);
+        SetColorSafe(baseColor);
+
+        timer = 0f;
+        while (timer < attackCooldown)
+        {
+            if (isStunned) yield break;
+            timer += Time.deltaTime;
+            yield return null;
+        }
+
         isAttacking = false;
+        attackCoroutine = null;
     }
 
     IEnumerator SwingRoutine()
@@ -186,31 +252,96 @@ public class EnemyAI : MonoBehaviour
         isAttacking = true;
         rb.velocity = Vector2.zero;
 
+
         yield return StartCoroutine(RotatePivot(Quaternion.Euler(0, 0, 45), 0.2f));
+        if (isStunned) yield break;
 
         if (swordCollider != null) swordCollider.enabled = true;
+
         yield return StartCoroutine(RotatePivot(Quaternion.Euler(0, 0, -135), 0.15f));
+        if (isStunned) yield break;
 
         yield return StartCoroutine(RotatePivot(Quaternion.Euler(0, 0, 0), 0.2f));
-
         if (swordCollider != null) swordCollider.enabled = false;
-        yield return new WaitForSeconds(attackCooldown);
+
+
+        float timer = 0f;
+        while (timer < attackCooldown)
+        {
+            if (isStunned) yield break;
+            timer += Time.deltaTime;
+            yield return null;
+        }
+
         isAttacking = false;
+        attackCoroutine = null;
     }
 
     IEnumerator RotatePivot(Quaternion targetLocalRot, float duration)
     {
         if (weaponPivot == null) yield break;
+
         Quaternion startRot = weaponPivot.localRotation;
-        float elapsed = 0;
+        float elapsed = 0f;
+
         while (elapsed < duration)
         {
+            if (isStunned) yield break;
             weaponPivot.localRotation = Quaternion.Slerp(startRot, targetLocalRot, elapsed / duration);
             elapsed += Time.deltaTime;
             yield return null;
         }
+
         weaponPivot.localRotation = targetLocalRot;
     }
+
+    public void ApplyStun(float duration)
+    {
+        if (isDead) return;
+
+        if (stunCoroutine != null)
+            StopCoroutine(stunCoroutine);
+
+        stunCoroutine = StartCoroutine(StunRoutine(duration));
+    }
+
+    private IEnumerator StunRoutine(float duration)
+    {
+        if (isDead) yield break;
+
+        isStunned = true;
+        CancelCurrentAttackImmediate();
+
+        if (sr != null) sr.color = Color.yellow;
+
+        yield return new WaitForSeconds(duration);
+
+        if (isDead) yield break;
+
+        isStunned = false;
+        if (sr != null) sr.color = baseColor;
+
+        stunCoroutine = null;
+    }
+
+
+    public void OnDeath()
+    {
+        isDead = true;
+        isStunned = false;
+
+        // stop only what can "restore" visuals / keep attacking
+        if (stunCoroutine != null)
+        {
+            StopCoroutine(stunCoroutine);
+            stunCoroutine = null;
+        }
+
+        CancelCurrentAttackImmediate();
+
+        if (swordCollider != null) swordCollider.enabled = false;
+    }
+
 
     public void BeginImpact()
     {

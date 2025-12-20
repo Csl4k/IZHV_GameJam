@@ -19,6 +19,7 @@ public class PlayerHealth : MonoBehaviour
     private Color originalColor;
     private float defaultDrag;
 
+
     void Start()
     {
         currentHealth = maxHealth;
@@ -33,12 +34,31 @@ public class PlayerHealth : MonoBehaviour
         if (movementScript == null) Debug.LogError("Missing PlayerController!");
     }
 
+    public void UsePotion()
+    {
+        if (isDead) return;
+        if (GameManager.HealthPotion <= 0) return;
+        if (currentHealth >= maxHealth) return;
+
+        GameManager.HealthPotion--;
+        currentHealth = Mathf.Min(maxHealth, currentHealth + 1);
+    }
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.G))
+        {
+            GameManager.TotalGold += 1000;
+            Debug.Log("Cheat: +1000 gold");
+        }
+    }
+
     public void TakeDamage(int damage, Transform source)
     {
         if (isDead) return;
+        int reduced = Mathf.Max(1, damage - GameManager.ArmorLevel);
 
-        currentHealth -= damage;
-        Debug.Log("Player HP: " + currentHealth);
+        currentHealth -= reduced;
+        //Debug.Log("Player HP: " + currentHealth);
 
         // determine which force to use
         float forceToUse = (currentHealth <= 0) ? deathKnockbackForce : knockbackForce;
@@ -102,11 +122,14 @@ public class PlayerHealth : MonoBehaviour
         if (rb != null)
         {
             rb.velocity = Vector2.zero;
-            rb.simulated = false; // stop interacting with world
+            rb.simulated = false;
         }
 
         yield return new WaitForSeconds(1.0f);
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+
+        GameManager.AdvanceRun();
+
+        SceneManager.LoadScene("HubScene");
     }
 
     IEnumerator FlashRedRoutine()
@@ -118,4 +141,8 @@ public class PlayerHealth : MonoBehaviour
             if (!isDead) sr.color = originalColor;
         }
     }
+
+    public int CurrentHealth => currentHealth;
+
+
 }
