@@ -23,7 +23,12 @@ public class IntroSequence : MonoBehaviour
     public float cameraShakeDuration = 0.3f;
     public float panSpeed = 0.5f;
 
+    [Header("Merchant")]
+    public Sprite merchantPrisonerSprite;
+
+
     [Header("UI")]
+    public GameObject canvas;
     public ShopUI ui;
     public GameObject skipPromptUI;
     public Image skipProgressBar;
@@ -101,8 +106,17 @@ public class IntroSequence : MonoBehaviour
         if (cameraFollowScript) cameraFollowScript.enabled = true;
 
         GameManager.StoryState = 1;
+        if (canvas != null) canvas.SetActive(true);
 
         if (skipPromptUI != null) skipPromptUI.SetActive(false);
+        if (merchantObject)
+        {
+            merchantObject.SetActive(true);
+
+            var sr = merchantObject.GetComponent<SpriteRenderer>();
+            if (sr && merchantPrisonerSprite)
+                sr.sprite = merchantPrisonerSprite;
+        }
 
         Destroy(this);
     }
@@ -117,6 +131,7 @@ public class IntroSequence : MonoBehaviour
 
     IEnumerator PlayIntro()
     {
+        if (canvas != null) canvas.SetActive(false);
         var playerControl = player.GetComponent<MonoBehaviour>();
         if (playerControl) playerControl.enabled = false;
         if (cameraFollowScript) cameraFollowScript.enabled = false;
@@ -251,7 +266,14 @@ public class IntroSequence : MonoBehaviour
 
         yield return new WaitForSeconds(1f);
 
-        if (merchantObject) merchantObject.SetActive(true);
+        if (merchantObject)
+        {
+            merchantObject.SetActive(true);
+
+            var sr = merchantObject.GetComponent<SpriteRenderer>();
+            if (sr && merchantPrisonerSprite)
+                sr.sprite = merchantPrisonerSprite;
+        }
 
         Vector3 targetPos = mainCamera.transform.position;
 
@@ -286,8 +308,8 @@ public class IntroSequence : MonoBehaviour
             yield return new WaitForSeconds(3f);
             ui.ShowNarrative("Gregor", "Want out?");
             yield return new WaitForSeconds(2f);
-            ui.ShowNarrative("Gregor", "Come talk to me. I can help.");
-            yield return new WaitForSeconds(2.5f);
+            ui.ShowNarrative("Gregor", "Come talk to me. I can give you a key to the door.");
+            yield return new WaitForSeconds(4f);
             ui.ShowNarrative("Gregor", "...For a price.");
             yield return new WaitForSeconds(3f);
 
@@ -303,7 +325,7 @@ public class IntroSequence : MonoBehaviour
         if (cameraFollowScript) cameraFollowScript.enabled = true;
         GameManager.StoryState = 1;
 
-
+        if (canvas != null) canvas.SetActive(true);
         if (skipPromptUI != null) skipPromptUI.SetActive(false);
 
         Destroy(this);

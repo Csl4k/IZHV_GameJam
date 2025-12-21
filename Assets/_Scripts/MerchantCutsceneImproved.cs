@@ -133,7 +133,7 @@ public class MerchantCutscene : MonoBehaviour
     public string GetMerchantDialogue()
     {
         int run = GameManager.RunCount;
-        int price = GameManager.GetFreedomPrice(100);
+        int price = GameManager.GetFreedomPrice();
 
         switch (merchantType)
         {

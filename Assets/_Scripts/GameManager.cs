@@ -7,6 +7,7 @@ public class GameManager : MonoBehaviour
     [Header("Economy")]
     public static int TotalGold = 0;
     public static int RunCount = 1;
+    public static int BaseFreedomPrice = 200;
 
     [Header("Inventory")]
     public static int HealthPotion = 0;
@@ -58,11 +59,12 @@ public class GameManager : MonoBehaviour
         return Mathf.RoundToInt(basePrice * multiplier);
     }
 
-    public static int GetFreedomPrice(int basePrice)
+    public static int GetFreedomPrice()
     {
         float multiplier = Mathf.Pow(1.5f, Mathf.Max(0, RunCount - 1));
-        return Mathf.RoundToInt(basePrice * multiplier);
+        return Mathf.RoundToInt(BaseFreedomPrice * multiplier);
     }
+
 
     public static int CurrentPrice
     {

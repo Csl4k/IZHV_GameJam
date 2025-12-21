@@ -16,10 +16,15 @@ public class PlayerHealth : MonoBehaviour
     private int currentHealth;
     private bool isDead = false;
     private Rigidbody2D rb;
-    private SpriteRenderer sr;
+    [Header("Visuals")]
+    public SpriteRenderer sr;
+
     private Color originalColor;
     private float defaultDrag;
     public bool invulnerable = false;
+
+    [Header("Death Visual")]
+    public Sprite deathSprite;
 
 
     void Start()
@@ -28,7 +33,6 @@ public class PlayerHealth : MonoBehaviour
         currentHealth = maxHealth;
 
         rb = GetComponent<Rigidbody2D>();
-        sr = GetComponent<SpriteRenderer>();
         if (sr != null) originalColor = sr.color;
 
         // remember normal drag
@@ -58,6 +62,13 @@ public class PlayerHealth : MonoBehaviour
         return baseHealth + extra;
     }
 
+    public bool CanUsePotion()
+    {
+        if (isDead) return false;
+        if (GameManager.HealthPotion <= 0) return false;
+        if (currentHealth >= maxHealth) return false;
+        return true;
+    }
 
     public void UsePotion()
     {
@@ -174,7 +185,12 @@ public class PlayerHealth : MonoBehaviour
     {
         isDead = true;
 
-        if (sr != null) sr.color = Color.grey;
+        if (sr != null && deathSprite != null)
+        {
+            sr.sprite = deathSprite;
+            sr.flipX = false; // optional: ensure consistent facing
+        }
+
 
         yield return new WaitForSeconds(1.0f);
 

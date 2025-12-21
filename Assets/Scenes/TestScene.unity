@@ -339,6 +339,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   goldText: {fileID: 1791540263}
   priceText: {fileID: 1799868499}
+  potionBG: {fileID: 0}
+  swordBG: {fileID: 0}
+  armorBG: {fileID: 0}
+  torchBG: {fileID: 0}
+  potionText: {fileID: 0}
+  swordText: {fileID: 0}
+  armorText: {fileID: 0}
+  torchText: {fileID: 0}
+  healthSlider: {fileID: 0}
 --- !u!1 &1273395031
 GameObject:
   m_ObjectHideFlags: 0
@@ -714,6 +723,73 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1799868497}
   m_CullTransparentMesh: 1
+--- !u!1 &2124079242
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2124079244}
+  - component: {fileID: 2124079243}
+  m_Layer: 0
+  m_Name: TestThing
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2124079243
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2124079242}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e9a3380f0790114bab06216628e788a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  player: {fileID: 0}
+  leftGuard: {fileID: 0}
+  rightGuard: {fileID: 0}
+  merchantPosition: {fileID: 0}
+  merchantObject: {fileID: 0}
+  walkSpeed: 2.5
+  throwSpeed: 8
+  offScreenDistance: 12
+  mainCamera: {fileID: 0}
+  cameraFollowScript: {fileID: 0}
+  cameraShakeIntensity: 0.15
+  cameraShakeDuration: 0.3
+  panSpeed: 0.5
+  merchantPrisonerSprite: {fileID: 0}
+  canvas: {fileID: 0}
+  ui: {fileID: 0}
+  skipPromptUI: {fileID: 0}
+  skipProgressBar: {fileID: 0}
+  audioSource: {fileID: 0}
+  doorSlamSFX: {fileID: 0}
+  footstepsSFX: {fileID: 0}
+  throwSFX: {fileID: 0}
+  chainsSFX: {fileID: 0}
+--- !u!4 &2124079244
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2124079242}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.06999074, y: 1.1474832, z: -0.04744409}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &1852539384995311019 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7795138782147359565, guid: bbeae399b02adbe4893161b088117710, type: 3}
@@ -909,3 +985,4 @@ SceneRoots:
   - {fileID: 500653226}
   - {fileID: 617477005}
   - {fileID: 590920567}
+  - {fileID: 2124079244}

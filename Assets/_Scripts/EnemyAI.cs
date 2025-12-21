@@ -7,6 +7,7 @@ public class EnemyAI : MonoBehaviour
     public Transform player;
     public Collider2D swordCollider;
     public Transform weaponPivot;
+    public Transform rotatePivot;
 
     public LayerMask obstacleLayer;
 
@@ -114,7 +115,9 @@ public class EnemyAI : MonoBehaviour
                 }
                 else if (distance > attackRange)
                 {
-                    transform.position += transform.right * moveSpeed * Time.deltaTime;
+                    Vector2 moveDir = ((Vector2)player.position - (Vector2)transform.position).normalized;
+                    transform.position += (Vector3)(moveDir * moveSpeed * Time.deltaTime);
+                    UpdateSpriteFlip(moveDir);
                 }
                 else
                 {
@@ -130,6 +133,8 @@ public class EnemyAI : MonoBehaviour
                 if (distToTarget > 0.5f)
                 {
                     transform.position = Vector2.MoveTowards(transform.position, lastSeenPosition, moveSpeed * Time.deltaTime);
+                    Vector2 moveDir = (lastSeenPosition - (Vector2)transform.position).normalized;
+                    UpdateSpriteFlip(moveDir);
                 }
             }
             else
@@ -147,10 +152,20 @@ public class EnemyAI : MonoBehaviour
 
     private void RotateTowards(Vector2 targetPos)
     {
-        Vector3 direction = (Vector3)targetPos - transform.position;
+        if (rotatePivot == null) return;
+
+        Vector2 direction = targetPos - (Vector2)rotatePivot.position;
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-        transform.rotation = Quaternion.Euler(0, 0, angle);
+
+        rotatePivot.rotation = Quaternion.Euler(0f, 0f, angle);
     }
+    private void UpdateSpriteFlip(Vector2 moveDir)
+    {
+        if (sr == null) return;
+        if (Mathf.Abs(moveDir.x) > 0.01f)
+            sr.flipX = moveDir.x < 0;
+    }
+
 
     private void CancelCurrentAttackImmediate()
     {
@@ -218,7 +233,9 @@ public class EnemyAI : MonoBehaviour
 
         if (swordCollider != null) swordCollider.enabled = true;
 
-        rb.velocity = transform.right * speed;
+        Transform dashBasis = (rotatePivot != null) ? rotatePivot : transform;
+        rb.velocity = (Vector2)dashBasis.right * speed;
+
 
         timer = 0f;
         while (timer < duration)

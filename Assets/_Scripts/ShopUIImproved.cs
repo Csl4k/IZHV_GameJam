@@ -61,6 +61,7 @@ public class ShopUI : MonoBehaviour
         rootPanel.SetActive(true);
         shopButtonsContainer.SetActive(true);
         currentMerchant = merchant;
+        BindButtonListeners();
         RefreshUI();
     }
 
@@ -94,7 +95,7 @@ public class ShopUI : MonoBehaviour
         int swordPrice = GameManager.GetUpgradePrice(50, GameManager.SwordLevel);
         int armorPrice = GameManager.GetUpgradePrice(40, GameManager.ArmorLevel);
         int torchPrice = GameManager.GetUpgradePrice(100, GameManager.TorchLevel);
-        int freedomPrice = GameManager.GetFreedomPrice(100);
+        int freedomPrice = GameManager.GetFreedomPrice();
 
         if (txtPotion) txtPotion.text = $"<color=white>Health Potion</color> <color=yellow>{potionPrice}g</color>";
         if (txtSword) txtSword.text = $"<color=white>Sharpen Blade</color> <color=yellow>{swordPrice}g</color>";
@@ -165,7 +166,7 @@ public class ShopUI : MonoBehaviour
 
     public void BuyFreedom()
     {
-        int cost = GameManager.GetFreedomPrice(100);
+        int cost = GameManager.GetFreedomPrice();
 
         if (GameManager.TotalGold >= cost)
         {
@@ -188,6 +189,41 @@ public class ShopUI : MonoBehaviour
 
             dialogueLabel.text = GetMerchantName() + ": " + failLines[Random.Range(0, failLines.Length)];
         }
+    }
+
+    void BindButtonListeners()
+    {
+        if (btnPotion)
+        {
+            btnPotion.onClick.RemoveAllListeners();
+            btnPotion.onClick.AddListener(BuyPotion);
+        }
+
+        if (btnSword)
+        {
+            btnSword.onClick.RemoveAllListeners();
+            btnSword.onClick.AddListener(BuySword);
+        }
+
+        if (btnArmor)
+        {
+            btnArmor.onClick.RemoveAllListeners();
+            btnArmor.onClick.AddListener(BuyArmor);
+        }
+
+        if (btnTorch)
+        {
+            btnTorch.onClick.RemoveAllListeners();
+            btnTorch.onClick.AddListener(BuyTorch);
+        }
+
+        if (btnFreedom)
+        {
+            btnFreedom.onClick.RemoveAllListeners();
+            btnFreedom.onClick.AddListener(BuyFreedom);
+        }
+
+        // Kill button is already handled in RefreshPricesAndButtons(), leave that logic there.
     }
 
 

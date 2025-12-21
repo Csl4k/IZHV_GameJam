@@ -13,6 +13,10 @@ public class EnemyHealth : MonoBehaviour
     public float knockbackAlive = 5f;
     public float stunDuration = 0.2f;
 
+    [Header("Death Visual")]
+    public Sprite deathSprite;
+
+
     private Color color;
     private SpriteRenderer sr;
     private Rigidbody2D rb;
@@ -89,6 +93,13 @@ public class EnemyHealth : MonoBehaviour
     IEnumerator DeathRoutine()
     {
         isDead = true;
+        if (sr != null && deathSprite != null)
+        {
+            sr.sprite = deathSprite;
+            sr.flipX = false;
+        }
+
+
         if (aiScript != null) aiScript.OnDeath();
 
         if (sr != null) sr.color = Color.grey;

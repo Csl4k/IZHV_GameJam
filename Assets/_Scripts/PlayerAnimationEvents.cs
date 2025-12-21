@@ -45,6 +45,18 @@ public class PlayerAnimationEvents : MonoBehaviour
             playerController.FinishDodgeAnimation();
     }
 
+    public void UsePotionHeal()
+    {
+        var hp = GetComponentInParent<PlayerHealth>();
+        if (hp != null) hp.UsePotion();
+    }
+
+    public void EndHeal()
+    {
+        if (playerController != null)
+            playerController.FinishHealAnimation();
+    }
+
 
     public void EnableParry()
     {
