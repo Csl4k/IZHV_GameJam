@@ -3,8 +3,8 @@ using TMPro;
 
 public class TorchEnemyWarning : MonoBehaviour
 {
-    public RectTransform indicator;     // drag TorchIndicator here
-    public Camera cam;                  // main camera
+    public RectTransform indicator;
+    public Camera cam;
     public float maxDetectDistance = 25f;
     public float screenOffsetPixels = 80f;
 

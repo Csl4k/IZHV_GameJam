@@ -43,6 +43,8 @@ public class EnemyAI : MonoBehaviour
 
     private Color originalColor;
 
+    private EnemySounds enemySounds;
+    private bool rushSoundPlayedThisAttack = false;
 
 
     private Coroutine stunCoroutine;
@@ -58,6 +60,7 @@ public class EnemyAI : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         sr = GetComponent<SpriteRenderer>();
+        enemySounds = GetComponent<EnemySounds>();
 
         baseDetectRange = detectRange;
 
@@ -147,6 +150,8 @@ public class EnemyAI : MonoBehaviour
     private void StartAttack(IEnumerator routine)
     {
         if (attackCoroutine != null) StopCoroutine(attackCoroutine);
+        rushSoundPlayedThisAttack = false;
+
         attackCoroutine = StartCoroutine(routine);
     }
 
@@ -188,6 +193,7 @@ public class EnemyAI : MonoBehaviour
     {
         if (sr == null) return;
         if (isStunned) return; // lock color during stun
+
         sr.color = c;
     }
 
@@ -207,6 +213,12 @@ public class EnemyAI : MonoBehaviour
         if (weaponPivot != null) weaponPivot.localRotation = Quaternion.identity;
 
         SetColorSafe(Color.red);
+        if (!rushSoundPlayedThisAttack)
+        {
+            enemySounds?.PlayRush();
+            rushSoundPlayedThisAttack = true;
+        }
+
 
         float timer = 0f;
         while (timer < windup)

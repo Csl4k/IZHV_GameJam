@@ -30,6 +30,9 @@ public class GameManager : MonoBehaviour
     public static int ShopInflationLevel = 0;
     public static bool IsUIOpen = false;
 
+    public static bool BossDefeated = false;
+    public static bool ShouldPlayMerchantCutscene = false;
+
     void Awake()
     {
         if (Instance == null)
@@ -46,6 +49,21 @@ public class GameManager : MonoBehaviour
     public static void AdvanceRun()
     {
         RunCount++;
+    }
+    public static void SetBossDefeated()
+    {
+        BossDefeated = true;
+        ShouldPlayMerchantCutscene = true;
+    }
+
+    public static bool ShouldTriggerAutoMerchantCutscene()
+    {
+        return ShouldPlayMerchantCutscene;
+    }
+
+    public static void ClearMerchantCutsceneFlag()
+    {
+        ShouldPlayMerchantCutscene = false;
     }
 
     public static int GetShopPrice(int basePrice)
@@ -88,16 +106,12 @@ public class GameManager : MonoBehaviour
         return string.IsNullOrWhiteSpace(LastMurderedMerchantName) ? "Gregor" : LastMurderedMerchantName;
     }
 
-    /// <summary>
-    /// Call this when the player murders the currently active merchant.
-    /// Updates the 'previous merchant' name and advances to the next merchant in the chain.
-    /// </summary>
     public static void RegisterMerchantMurder()
     {
         LastMurderedMerchantName = GetCurrentMerchantName();
         MerchantIndex = Mathf.Max(0, MerchantIndex + 1);
 
-        // We only need StoryState for gating the intro; after the first merchant dies, we stay in "post-intro".
+        // only need StoryState for gating the intro after the first merchant dies, we stay in "post-intro".
         StoryState = 1;
     }
 
@@ -114,7 +128,6 @@ public class GameManager : MonoBehaviour
 
     public static int GetPotionPrice(int baseCost, int currentLevel)
     {
-        // Mild scaling so potions don’t become impossible
         return Mathf.RoundToInt(baseCost * Mathf.Pow(1.12f, currentLevel));
     }
 

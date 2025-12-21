@@ -42,6 +42,7 @@ public class PlayerController : MonoBehaviour
     private bool isAttacking = false;
     private bool isParrying = false;
     private bool isHealing = false;
+    private PlayerAudio playerAudio;
 
     private void Awake()
     {
@@ -55,11 +56,11 @@ public class PlayerController : MonoBehaviour
         InitializeReferences();
     }
 
-    // NEW: This function ensures all references are properly set
     private void InitializeReferences()
     {
         if (mainCamera == null) mainCamera = Camera.main;
         if (animator == null) animator = GetComponent<Animator>();
+        playerAudio = GetComponent<PlayerAudio>();
 
         // Reset all state variables when scene loads
         isDodging = false;
@@ -87,7 +88,6 @@ public class PlayerController : MonoBehaviour
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        // CRITICAL FIX: Reinitialize everything after scene change
         InitializeReferences();
 
         // Reset input states
@@ -141,7 +141,7 @@ public class PlayerController : MonoBehaviour
         // Must have something to heal with
         var hp = GetComponent<PlayerHealth>();
         if (hp == null) return;
-        if (!hp.CanUsePotion()) return; // we’ll add this helper below
+        if (!hp.CanUsePotion()) return;
 
         isHealing = true;
         if (animator != null) animator.SetTrigger("Heal");
@@ -159,6 +159,7 @@ public class PlayerController : MonoBehaviour
 
         lastDodgeTime = Time.time;
         isDodging = true;
+        playerAudio?.PlayRoll();
 
         // stop drifting
         mRigidBody.velocity = Vector2.zero;
@@ -176,16 +177,15 @@ public class PlayerController : MonoBehaviour
         // called from animation event at the "burst" frame
         mRigidBody.velocity = Vector2.zero;
 
-        // Prefer live input; fallback to last move direction; final fallback = forward
         Vector2 dir = dodgeDir;
 
         mRigidBody.AddForce(dir * dodgeImpulse * eventModifier, ForceMode2D.Impulse);
-        Debug.Log($"[DODGE IMPULSE] dir={dir} velAfter={mRigidBody.velocity}");
+
     }
 
     public void FinishDodgeAnimation()
     {
-        Debug.Log($"[DODGE END] time={Time.time:F3} velBeforeZero={mRigidBody.velocity}");
+
         isDodging = false;
         mRigidBody.velocity = Vector2.zero;
     }
@@ -201,6 +201,8 @@ public class PlayerController : MonoBehaviour
             if (isDodging) return;
             if (isAttacking) return;
             if (isHealing) return;
+            playerAudio?.PlaySwing();
+
             PerformComboAttack();
         }
     }
@@ -220,12 +222,11 @@ public class PlayerController : MonoBehaviour
     {
         isParrying = true;
 
-        // Kill momentum so you don't slide while parrying
+        // Kill momentum so player doesn't slide while parrying
         mRigidBody.velocity = Vector2.zero;
 
         if (animator != null) animator.SetTrigger("Parry");
 
-        // Safety Net: In case Animation Event fails
         yield return new WaitForSeconds(1.0f);
         if (isParrying) FinishParryAnimation();
     }
@@ -262,7 +263,6 @@ public class PlayerController : MonoBehaviour
     {
         mRigidBody.velocity = Vector2.zero;
 
-        // Use aim direction instead of player rotation
         Vector2 forceDir = (aimOrigin != null) ? (Vector2)aimOrigin.up : lastMoveDir;
         if (forceDir.sqrMagnitude < 0.01f) forceDir = Vector2.up;
 
@@ -273,7 +273,6 @@ public class PlayerController : MonoBehaviour
     public void FinishAttackAnimation()
     {
         isAttacking = false;
-        // Reset velocity again at the end so you don't slide forever after a hit
         mRigidBody.velocity = Vector2.zero;
     }
 
@@ -283,20 +282,17 @@ public class PlayerController : MonoBehaviour
 
         Vector2 look = mLookInput;
 
-        // If look values are small, assume this is a stick direction (-1..1)
         bool looksLikeStick = look.sqrMagnitude <= 1.05f;
 
         Vector2 dir;
 
         if (looksLikeStick)
         {
-            // Stick mode: look IS a direction
-            if (look.sqrMagnitude < 0.01f) return; // no stick input
+            if (look.sqrMagnitude < 0.01f) return;
             dir = look.normalized;
         }
         else
         {
-            // Mouse mode: look IS screen position in pixels
             float z = Mathf.Abs(mainCamera.transform.position.z - aimOrigin.position.z);
             Vector3 mouseWorld = mainCamera.ScreenToWorldPoint(new Vector3(look.x, look.y, z));
             dir = ((Vector2)mouseWorld - (Vector2)aimOrigin.position).normalized;

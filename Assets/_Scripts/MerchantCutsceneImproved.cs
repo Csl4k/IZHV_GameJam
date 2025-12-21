@@ -21,6 +21,7 @@ public class MerchantCutscene : MonoBehaviour
     private ShopUI shopUI;
     private bool isInteractionOpen = false;
     private Transform playerTransform;
+    private bool hasCheckedAutoTrigger = false;
 
     public enum MerchantType { Gregor, Viktor }
     public MerchantType merchantType = MerchantType.Gregor;
@@ -35,6 +36,27 @@ public class MerchantCutscene : MonoBehaviour
         UpdateMerchantAppearance();
 
         if (interactionPrompt != null) interactionPrompt.SetActive(false);
+        
+        StartCoroutine(CheckAutoTrigger());
+    }
+
+    IEnumerator CheckAutoTrigger()
+    {
+        // Wait a frame for everything to initialize
+        yield return new WaitForSeconds(0.5f);
+
+        if (!hasCheckedAutoTrigger && GameManager.ShouldTriggerAutoMerchantCutscene())
+        {
+            hasCheckedAutoTrigger = true;
+            GameManager.ClearMerchantCutsceneFlag();
+
+            Debug.Log("Auto-triggering merchant death cutscene after boss defeat");
+
+            yield return new WaitForSeconds(1f);
+
+            // Auto-trigger the murder sequence
+            StartMurderSequence();
+        }
     }
 
     void UpdateMerchantAppearance()

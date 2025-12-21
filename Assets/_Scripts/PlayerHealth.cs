@@ -12,6 +12,10 @@ public class PlayerHealth : MonoBehaviour
     public float flashDuration = 0.1f;
     public float stunDuration = 0.2f;
 
+    [Header("Invulnerability")]
+    public float invulnerabilityDuration = 1.0f;
+
+
     private PlayerController movementScript;
     private int currentHealth;
     private bool isDead = false;
@@ -26,11 +30,14 @@ public class PlayerHealth : MonoBehaviour
     [Header("Death Visual")]
     public Sprite deathSprite;
 
+    private PlayerAudio playerAudio;
+
 
     void Start()
     {
         maxHealth = ComputeMaxHealth();
         currentHealth = maxHealth;
+        playerAudio = GetComponent<PlayerAudio>();
 
         rb = GetComponent<Rigidbody2D>();
         if (sr != null) originalColor = sr.color;
@@ -119,8 +126,8 @@ public class PlayerHealth : MonoBehaviour
     {
         if (isDead) return;
         if (invulnerable) return;
+        playerAudio?.PlayTakeDamage();
 
-        // Stronger enemies ONLY after each merchant-death "game reset"
         int resetTier = Mathf.Max(0, GameManager.MerchantIndex); // 0=Gregor run, 1=Viktor run, 2=Viktor II...
         float resetMultiplier = 1f + 0.12f * resetTier;          // tweak 0.12f (12% per reset)
         float incoming = Mathf.Max(1f, damage) * resetMultiplier;
@@ -141,6 +148,9 @@ public class PlayerHealth : MonoBehaviour
 
         StartCoroutine(FlashRedRoutine());
 
+        // start i-frames
+        StartCoroutine(InvulnerabilityRoutine());
+
         if (currentHealth > 0)
         {
             StartCoroutine(RecoverRoutine());
@@ -149,7 +159,17 @@ public class PlayerHealth : MonoBehaviour
         {
             StartCoroutine(DeathRoutine());
         }
+
     }
+
+    IEnumerator InvulnerabilityRoutine()
+    {
+        invulnerable = true;
+        yield return new WaitForSeconds(invulnerabilityDuration);
+
+        invulnerable = false;
+    }
+
 
     void ApplyKnockback(Transform source, float force)
     {
