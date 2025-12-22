@@ -7512,12 +7512,12 @@ MonoBehaviour:
 
     <b>Heal:</b> Q
 
-    
+
 
     <b>ITEMS</b>
 
-    <b>Torch</b> helps
-    you locate enemies before you see them. To heal player needs <b>Potions</b>
+    <b>Torch</b> helps you
+    locate enemies before you see them. To heal player needs <b>Potions</b>
 
 
     <b>OBJECTIVE</b>
@@ -7531,7 +7531,7 @@ MonoBehaviour:
     And beware... a dangerous
     enemy lurks underground.
 
-    
+
 
     Press any key to close'
   showOnlyOnce: 0
@@ -7745,7 +7745,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3896600052740862171, guid: af688ef44f1e7c2409911111e3777e5a, type: 3}
       propertyPath: killUnlockRun
-      value: 1
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 5153530471601173861, guid: af688ef44f1e7c2409911111e3777e5a, type: 3}
       propertyPath: m_AnchorMax.y
